@@ -1,0 +1,117 @@
+<!-- <template>
+    <div class="row">
+      <div class="col-3"></div>
+      <div class="col-8 pt-4">  <input type="text" v-model="searchText" class="form-control mb-3" placeholder="Search" />
+        <div v-if="isLoading" class="text-center"> 
+            loading
+          </div>
+        <table v-else class="table">
+          <thead>
+            <tr>
+              <th @click="sortBy('id')">ID</th>
+              <th @click="sortBy('firstName')">firstName</th>
+              <th @click="sortBy('middleName')">middleName</th>
+              <th @click="sortBy('lastName')">lastName</th>
+              <th @click="sortBy('email')">Email</th>
+              <th @click="sortBy('createdAt')">Created At</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="user in filteredUsers" :key="user.id">
+              <td>{{ user.id }}</td>
+              <td>{{ user.firstName }}</td>
+              <td>{{ user.middleName }}</td>
+              <td>{{ user.lastName }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ formatDate(user.createdAt) }}</td>
+            </tr>
+          </tbody>
+        </table></div>
+    
+    </div>
+  </template>
+  
+  <script>
+  import axios from 'axios';
+  
+  export default {
+    data() {
+      return {
+        users: [],
+        searchText: '',
+        sortByColumn: null,
+        sortDirection: 'asc',
+        isLoading: true,
+      };
+    },
+    computed: {
+      filteredUsers() {
+        let filteredUsers = this.users;
+  
+        if (this.searchText) {
+          filteredUsers = filteredUsers.filter(user => {
+            return (
+              user.firstName.toLowerCase().includes(this.searchText.toLowerCase()) ||
+              user.email.toLowerCase().includes(this.searchText.toLowerCase())
+            );
+          });
+        }
+  
+        if (this.sortByColumn) {
+          const column = this.sortByColumn;
+          const direction = this.sortDirection === 'asc' ? 1 : -1;
+  
+          filteredUsers = filteredUsers.sort((a, b) => {
+            const valueA = typeof a[column] === 'string' ? a[column].toLowerCase() : a[column];
+            const valueB = typeof b[column] === 'string' ? b[column].toLowerCase() : b[column];
+  
+            if (valueA < valueB) {
+              return -1 * direction;
+            }
+            if (valueA > valueB) {
+              return 1 * direction;
+            }
+            return 0;
+          });
+        }
+  
+        return filteredUsers;
+      },
+    },
+    methods: {
+        async getUsers() {
+  try {
+    this.isLoading = true; // начало загрузки
+    const response = await axios.get('https://62b6e7ae6999cce2e809e977.mockapi.io/users');
+    this.users = response.data;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    this.isLoading = false; // завершение загрузки
+  }
+},
+      sortBy(column) {
+        if (this.sortByColumn === column) {
+          this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+          this.sortByColumn = column;
+          this.sortDirection = 'asc';
+        }
+      },
+      formatDate(dateString) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+      },
+    },
+    mounted() {
+      this.getUsers();
+    },
+  };
+  </script>
+  
+  <style>
+  th {
+    cursor: pointer;
+  }
+  </style>
+ -->
