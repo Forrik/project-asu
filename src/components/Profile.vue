@@ -4,14 +4,14 @@
         <div class="col-8 content">
             <div class="col-lg-12 mb-4 mb-sm-5">
                 <div class="card card-style1 border-0">
-                    <div class="card-body p-1-9 p-sm-2-3 p-md-6 p-lg-7">
-                        <div class="row align-items-center">
+                    <div  class="card-body p-1-9 p-sm-2-3 p-md-6 p-lg-7">
+                        <div  class="row align-items-center">
                             <div class="col-lg-6 mb-4 mb-lg-0">
                                 <img class="d-block m-auto" src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="...">
                             </div>
-                            <div class="col-lg-6 px-xl-10">
+                            <div v-for="(user, index) in this.users" :key="index" class="col-lg-6 px-xl-10">
                                 <div class="bg-primary d-lg-inline-block py-1-9 px-1-9 px-sm-6 mb-1-9 w-100 rounded">
-                                    <h3 class="h2 text-white mb-0">Иванов Иван Иванович</h3>
+                                    <h3 class="h2 text-white mb-0">Иванов Иван Иванович {{user.username}}</h3>
                                     <span class="text-light">Студент</span>
                                 </div>
                                 <ul class="list-unstyled mb-1-9">
@@ -69,21 +69,21 @@ export default {
     data() {
         return {
 
-            user:[]
+            users:[]
         }
     },
 
     mounted() {
-
+        this.getUsers();
     },
 
 
 
     methods: {
 
-    getUser() {
-        axios.get('http://localhost:8000/api/me').then(response => {
-            this.user = response.data
+    getUsers() {
+        axios.get('http://localhost:8000/api/user').then(response => {
+            this.users = response.data
         })
 
     }

@@ -11,9 +11,9 @@
               <form v-on:submit.prevent="submitForm">
                 <!-- Email input -->
                 <div class="form-outline mb-4">
-                  <input type="email" v-model="form.email"  placeholder="Введите email"  class="form-control form-control-lg"
+                  <input type="login" v-model="form.username"  placeholder="Введите логин"  class="form-control form-control-lg"
                    >
-                  <label class="form-label fw-bold text-body-tertiary" >Email адрес</label>
+                  <label class="form-label fw-bold text-body-tertiary" >Логин</label>
                 </div>
 
 
@@ -27,7 +27,7 @@
       
                 <div class="d-flex justify-content-between align-items-center">
                   <!-- Checkbox -->
-                  <div class="form-check mb-0">
+                  <div class="form-check mb-0"> 
                     <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3" />
                     <label class="form-check-label" for="form2Example3">
                       Remember me
@@ -74,7 +74,7 @@ export default {
     data() {
         return {
             form: {
-                email: 'mail@mail.ru',
+                login: 'admin',
                 password: '',
             },
             errors: []
@@ -84,7 +84,7 @@ export default {
         async submitForm() {
             this.errors = []
 
-            if (this.form.email === '') {
+            if (this.form.login === '') {
                 this.errors.push('Вы не ввели email')
             }
 
@@ -112,7 +112,7 @@ export default {
                     .get('http://localhost:8000/api/me/')
                     .then(response => {
                         this.userStore.setUserInfo(response.data)
-
+                        location.reload()
                         this.$router.push('/')
                     })
                     .catch(error => {

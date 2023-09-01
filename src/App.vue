@@ -546,7 +546,7 @@ body.dark .home .text {
     export default {
         setup() {
             const userStore = useUserStore()
-            const activeIndex = ref(0);
+            const activeIndex = ref(100);
 
             function setActive(index) {
       activeIndex.value = index;

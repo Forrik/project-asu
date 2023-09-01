@@ -22,6 +22,10 @@
   width: 0;
 } */
 
+.row {
+  margin: 0;
+}
+
 body {
   padding: 0;
   margin: 0;
