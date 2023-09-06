@@ -1,5 +1,5 @@
 @import 'bootstrap';
-
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css");
 
 :root {
   /* ===== Colors ===== */
@@ -21,6 +21,15 @@
 /* ::-webkit-scrollbar {
   width: 0;
 } */
+
+th {
+  cursor: pointer;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 
 .row {
   margin: 0;

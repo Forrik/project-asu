@@ -171,6 +171,8 @@
 
   <div v-else>
 
+    <p>Вы не авторизованы</p>
+
     <RouterLink to="/login">
     <button type="button" >Войти</button>
     </RouterLink>

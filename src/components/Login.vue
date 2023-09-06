@@ -59,22 +59,23 @@
 
 <script>
 import axios from 'axios'
-
+import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user.js'
 
 export default {
     setup() {
-        const userStore = useUserStore()
-
+        const userStore = useUserStore();
+        const router = useRouter();
         return {
-            userStore
+            userStore,
+            router
         }
     },
 
     data() {
         return {
             form: {
-                login: 'admin',
+                username: '',
                 password: '',
             },
             errors: []
@@ -84,8 +85,8 @@ export default {
         async submitForm() {
             this.errors = []
 
-            if (this.form.login === '') {
-                this.errors.push('Вы не ввели email')
+            if (this.form.username === '') {
+                this.errors.push('Вы не ввели логин')
             }
 
             if (this.form.password === '') {
@@ -97,8 +98,9 @@ export default {
                     .post('http://localhost:8000/api/login/', this.form)
                     .then(response => {
                         this.userStore.setToken(response.data)
-
+                        
                         axios.defaults.headers.common["Authorization"] = "Bearer " + response.data.access;
+                        this.router.push('/')
                     })
                     .catch(error => {
                         console.log('error', error)
@@ -112,8 +114,7 @@ export default {
                     .get('http://localhost:8000/api/me/')
                     .then(response => {
                         this.userStore.setUserInfo(response.data)
-                        location.reload()
-                        this.$router.push('/')
+
                     })
                     .catch(error => {
                         console.log('error', error)
