@@ -8,6 +8,8 @@ import Registration from '../components/Registration.vue'
 import Login from '../components/Login.vue'
 import Profile from '../components/Profile.vue'
 import Test from '../components/Test.vue'
+import Graduation from '../components/Graduation.vue'
+
 
 
 const router = createRouter({
@@ -37,6 +39,11 @@ const router = createRouter({
       path: '/profile/',
       name: 'profile',
       component: Profile
+    },
+    {
+      path: '/graduation',
+      name: 'graduation',
+      component: Graduation
     },
     {
       path: '/test',

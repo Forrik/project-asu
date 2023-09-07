@@ -8,40 +8,39 @@ export default {
         
 
         return {
-            users: []
+            users: [],
+            isLoading: true,
             
         }
     },
     mounted() {
             this.getUsers();
-
-
-            // const body = document.querySelector("body"),
-            // table = body.querySelector("table")
-
-            // if (body.classList.contains("dark")) {
-            //   table.classList.toggle(".table-dark");
-            // } else {
-            //   table.classList.toggle("table-light");
-            // }
-
-       
-
+            this.getPosition();
         },
 
         methods: {
           getUsers() {
-            axios.get('https://62b6e7ae6999cce2e809e977.mockapi.io/users').then(res => {
+           
+            axios.get('http://localhost:8000/api/user/').then(res => {
+              console.log(this.users)
                 this.users = res.data
-
-
+                this.isLoading = false
+               
             });
+          },
+
+          getPosition() {
+
+            axios.get('http://localhost:8000/api/position/').then(res => {
+                this.position = res.data
+
+            })
           },
           
           
           deleteUser(userId) {
            if(confirm('Вы уверены, что хотите удалить учетную запись?')) {
-            axios.delete(`https://62b6e7ae6999cce2e809e977.mockapi.io/users/${userId}`).then(res => {
+            axios.delete(`http://localhost:8000/api/user/${userId}`).then(res => {
                 alert('Карта сотрудника удалена');
                 location.reload();
                 this.getCards();
@@ -65,7 +64,11 @@ import Add from './icons/Add.vue'
   <div class="col-8 content">
   <div class="card">
     <div class="table-responsive">
-    <table class="table table-bordered table-hover ">
+      <div v-if="isLoading" >
+        <p class="text-center mt-5 mb-2"><h4>Подождите...</h4></p>
+        <span class="loader"></span>
+      </div>
+    <table v-else class="table table-bordered table-hover">
         <thead>
           <tr>
             <th scope="col">№</th>
@@ -84,13 +87,14 @@ import Add from './icons/Add.vue'
         <tbody >
           <tr v-for="(user, index) in this.users" :key="index">
             <td > {{user.id}} </td>
-            <td >{{user.firstName}}</td>
-            <td >{{user.middleName}}</td>
-            <td >{{user.lastName}}</td>
-            <td >{{user.jobTitle}}</td>
+            <td >{{user.first_name}}</td>
+            <td >{{user.middle_name}}</td>
+            <td >{{user.last_name}}</td>
+            <td v-if="user.position">{{user.position.name}}</td>
+            <td v-else>Нет должности</td>
             <td >{{user.jobArea}}</td>
             <td >{{user.jobType}}</td>
-            <td>Логин</td>
+            <td>{{user.username}}</td>
             <td>Пароль</td>
             <td>
                 <Edit />
@@ -114,6 +118,46 @@ import Add from './icons/Add.vue'
   
   <style>
 
+  .loader {
+    width: 38px;
+    height: 38px;
+    display: block;
+    margin: 15px auto 0;
+    position: relative;
+    border: 3px solid #695CFE;
+    border-radius: 50%;
+    box-sizing: border-box;
+    animation: animloader 2s linear infinite;
+  }
+  .loader::after {
+    content: '';  
+    box-sizing: border-box;
+    width: 6px;
+    height: 24px;
+    background: #695CFE;
+    transform: rotate(-45deg);
+    position: absolute;
+    bottom: -20px;
+    left: 34px;
+  }
+  
+  @keyframes animloader {
+    0% {
+      transform: translate(-10px, -10px);
+    }
+    25% {
+      transform: translate(-10px, 10px);
+    }
+    50% {
+      transform: translate(10px, 10px);
+    }
+    75% {
+      transform: translate(10px, -10px);
+    }
+    100% {
+      transform: translate(-10px, -10px);
+    }
+  }   
 
 
 table {

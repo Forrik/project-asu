@@ -16,7 +16,12 @@ import Add from './icons/Add.vue'
         <div class="card">
           <div class="table-responsive">
             <input type="text" v-model="searchQuery" placeholder="Поиск" />
-          <table  class="table table-bordered table-hover ">
+            <div v-if="isLoading" >
+              <p class="text-center mt-5 mb-2"><h4>Подождите...</h4></p>
+              <span class="loader"></span>
+            </div>
+         
+          <table v-else class="table table-bordered table-hover ">
               <thead>
                 <tr>
                   <th @click="sortBy('id')">№
@@ -262,6 +267,7 @@ export default {
         },
         modalActiveEdit: false,
         modalActive: false,
+        isLoading: true,
         form: {
           code: '',
           name: '',
@@ -406,8 +412,11 @@ export default {
       },
 
     getSpecialities() {
+ 
         axios.get('http://localhost:8000/api/speciality').then(response => {
             this.specialities = response.data
+            this.isLoading = false
+            
         })
 
     },
