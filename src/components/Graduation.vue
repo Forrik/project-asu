@@ -1,22 +1,445 @@
+<script setup>
+import Delete from './icons/Delete.vue'
+import Edit from './icons/Edit.vue'
+import Add from './icons/Add.vue'
+import Next from './icons/Next.vue'
+</script>
+
 <template>
-    <div>
-        <div class="row">
-            <div class="col-3"></div>
-            <div class="col-8"><h1>graduation</h1></div>
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-8 content">
+           
+            <div class="card">
+                <div class="table-responsive">
+                  <input type="text" v-model="searchQuery" placeholder="Поиск" />
+                  <div v-if="isLoading" >
+                    <p class="text-center mt-5 mb-2"><h4>Подождите...</h4></p>
+                    <span class="loader"></span>
+                  </div>
+               
+                <table v-else class="table table-bordered table-hover ">
+                    <thead>
+                      <tr>
+                        <th @click="sortBy('id')">№
+                          <template v-if="sortKey === 'id' && sortDirection['id'] === 1">
+                            <i class="bi bi-caret-down-fill"></i>
+                          </template>
+                          <template v-if="sortKey === 'id' && sortDirection['id'] === -1">
+                            <i class="bi bi-caret-up-fill"></i>
+                          </template>
+                        </th>
+                        <th @click="sortBy('year')">Выпуск
+                          <template v-if="sortKey === 'year' && sortDirection['year'] === 1">
+                            <i class="bi bi-caret-down-fill"></i>
+                          </template>
+                          <template v-if="sortKey === 'year' && sortDirection['year'] === -1">
+                            <i class="bi bi-caret-up-fill"></i>
+                          </template>
+                        </th>
+                        <th @click="sortBy('year')">Год
+                          <template v-if="sortKey === 'year' && sortDirection['year'] === 1">
+                            <i class="bi bi-caret-down-fill"></i>
+                          </template>
+                          <template v-if="sortKey === 'year' && sortDirection['year'] === -1">
+                            <i class="bi bi-caret-up-fill"></i>
+                          </template>
+                        </th>
+                        <th @click="sortBy('typeGraduation')">Тип выпуска
+                          <template v-if="sortKey === 'typeGraduation' && sortDirection['typeGraduation'] === 1">
+                            <i class="bi bi-caret-down-fill"></i>
+                          </template>
+                          <template v-if="sortKey === 'typeGraduation' && sortDirection['typeGraduation'] === -1">
+                            <i class="bi bi-caret-up-fill"></i>
+                          </template>
+                        </th>
+                        
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(graduation, index) in sortedGraduations" :key="index">
+                        <td>{{graduation.id}}</td>
+                        <td>{{graduation.year}} {{graduation.typeGraduation}}</td>
+                        <td>{{graduation.year}}</td>
+                        <td>{{graduation.typeGraduation}}</td>
+                        <td><Edit @click="openModalEdit(index)" /></td> 
+                        <td> <Delete @click="deleteSpeciality(speciality.id)" /> </td>
+                        <td><Next /></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="icon-add">
+                  
+                      <a @click="openModal" href="#">   <Add /></a>
+                   
+                  
+                      
+                    </div>
+                      
+                </div>
+              </div>
+
+              <div v-show="modalActiveEdit">
+                <div   @click="modalActiveEdit = false; this.errors=''" class="modal-wrapper" >   </div>
+                 <div  class="modal-window">
+                    <h4 class="modal-title py-3 fw-bold">Редактировать</h4>
+                    <svg
+                    @click="modalActiveEdit = false;this.errors=''"
+                    class="icon-close"
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="35"
+                    viewBox="0 0 16 16"
+                    width="35"
+                    
+                  >
+                    <polygon
+                      fill-rule="evenodd"
+                      points="8 9.414 3.707 13.707 2.293 12.293 6.586 8 2.293 3.707 3.707 2.293 8 6.586 12.293 2.293 13.707 3.707 9.414 8 13.707 12.293 12.293 13.707 8 9.414"
+                    />
+                  </svg>
+                  <form v-on:submit.prevent="updateGraduation">
+                    <div class="form-outline mb-3">
+                      <label class="form-label fw-bold ms-4">Тип выпуска</label>
+                      
+                      <input v-model="form.typeGraduation" type="text"  class="form-control form-modal" placeholder="Введите тип выпуска " />
+                    </div>
+                    <div class="form-outline mb-3">
+                      <label class="form-label fw-bold ms-4" >Год</label>
+                      <input v-model="form.year" type="number" class="form-control form-modal" 
+                        placeholder="Введите год" />
+                    </div>
+                    <template v-if="errors.length > 0">
+                      <div class="alert alert-danger mt-3" >
+                          <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
+                      </div>
+                  </template>
+      
+                
+                      <div class="btn-modal-wrapper">
+                        <button class="btn-modal">Обновить</button>
+                      </div>
+      
+                      
+      
+                    </form>
+                    
+                
+                 </div>
+             
+                </div>
+      
+      
+      
+                <div v-show="modalActive" >
+                  <div  @click="modalActive = false; this.errors=''" class="modal-wrapper" >   </div>
+                   <div  class="modal-window">
+                      <h4 class="modal-title py-3 fw-bold">Добавить</h4>
+                      <svg
+                      @click="modalActive = false; this.errors=''"
+                      class="icon-close"
+                      xmlns="http://www.w3.org/2000/svg"
+                      height="35"
+                      viewBox="0 0 16 16"
+                      width="35"
+                      
+                    >
+                      <polygon
+                        fill-rule="evenodd"
+                        points="8 9.414 3.707 13.707 2.293 12.293 6.586 8 2.293 3.707 3.707 2.293 8 6.586 12.293 2.293 13.707 3.707 9.414 8 13.707 12.293 12.293 13.707 8 9.414"
+                      />
+                    </svg>
+                    <form  v-on:submit.prevent="submitForm">
+                      <div class="form-outline mb-3">
+                        <label class="form-label fw-bold ms-4">Тип выпуска</label>
+                        
+                        <input v-model="form.typeGraduation" class="form-control form-modal" 
+                          placeholder="Введите тип выпуска" />
+                      </div>
+                      <div class="form-outline mb-3">
+                        <label class="form-label fw-bold ms-4" >Год</label>
+                        <input v-model="form.year" class="form-control form-modal" 
+                          placeholder="Введите год" />
+                      </div>
+                      <template v-if="errors.length > 0">
+                        <div class="alert alert-danger mt-3" >
+                            <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
+                        </div>
+                    </template>
+        
+                  
+                        <div class="btn-modal-wrapper">
+                          <button class="btn-modal">Добавить</button>
+                        </div>
+        
+                        
+        
+                      </form>
+                      
+                  
+                   </div>
+               
+                  </div>
+                
+            
+
+                <!-- <div>
+                    <ul class="nav ">
+                        <li class="nav-item"  v-on:click="counter = 1" >
+                          <a class="nav-link-graduate" :class="{ active: activeIndex === 0 }" @click="setActive(0)" aria-current="page" href="#">Группы</a>
+                        </li>
+                        <li class="nav-item"  v-on:click="counter = 2" >
+                          <a class="nav-link-graduate" :class="{ active: activeIndex === 1 }" @click="setActive(1)" href="#">Норма времени</a>
+                        </li>
+                        <li class="nav-item"  v-on:click="counter = 3" >
+                          <a class="nav-link-graduate" :class="{ active: activeIndex === 2 }" @click="setActive(2)" href="#">Сводка</a>
+                        </li>
+                      </ul>
+                      <ul class="nav-tabs"></ul>
+                    <div v-if="counter === 1">
+                        <div class="card-body">
+                            <h1>1 страница</h1>
+                        </div>
+                      </div>
+                      <div v-else-if="counter === 2">
+                        <div class="card-body">
+                           <h1>2 страница</h1>
+                        </div>
+                      </div>
+                      <div v-else-if="counter === 3">
+                        <div class="card-body">
+                            <h1>3 страница</h1>
+                        </div>
+                      </div>
+                  </div> -->
         </div>
     </div>
+
 </template>
 
 <script>
-export default {
-    data () {
-        
+import axios from 'axios'
+import { mask } from 'vue-the-mask'
+import { ref } from 'vue';
 
-        return {}
+
+export default {
+    name: 'Graduation',
+    directives: { mask },
+        setup() {
+            const activeIndex = ref(100);
+
+            function setActive(index) {
+      activeIndex.value = index;
     }
+            
+            return {
+                activeIndex,
+                setActive,
+            }
+        },
+        data() {
+            return {
+        searchQuery: '',
+        sortDirection: {
+          id: 1,
+          code: 1,
+          name: 1,
+          abbreviation: 1,
+          edulevel: 1
+        },
+        modalActiveEdit: false,
+        modalActive: false,
+        isLoading: true,
+        form: {
+          typeGraduation: '',
+          year: '',
+        },
+        errors: [],
+        graduations: [],
+        edulevels: [],
+        sortKey: ''
+        }
+    },
+    mounted() {
+        this.getGraduation();
+        this.getEduLevel();
+        this.specialityId = this.$route.params.specialityId;
+
+    }, 
+
+    computed: {
+      filteredSpecialities() {
+    if (this.searchQuery === '') {
+      return this.specialities;
+    }
+
+    const query = this.searchQuery.toLowerCase();
+    return this.specialities.filter((speciality) => {
+      return (
+        speciality.code.toLowerCase().includes(query) ||
+        speciality.name.toLowerCase().includes(query) ||
+        speciality.abbreviation.toLowerCase().includes(query) ||
+        speciality.edulevel.toLowerCase().includes(query)
+      );
+    });
+  },
+
+  sortedGraduations() {
+  return this.graduations.sort((a, b) => {
+    const key = this.sortKey;
+    const direction = this.sortDirection[key];
+      console.log(typeof(a))
+
+
+    const aValue = a[key];
+    const bValue = b[key];
+
+    if (aValue < bValue) return -1 * direction;
+    if (aValue > bValue) return 1 * direction;
+    return 0;
+  });
+}
+    },
+
+    methods: {
+
+async updateGraduation() {
+  this.errors = []
+  
+  if (this.form.typeGraduation === '' ) {
+      this.errors.push('Вы не ввели тип выпуска')
+  }
+
+  if (this.form.year === '') {
+      this.errors.push('Вы не ввели год')
+  }
+
+  if (this.errors.length === 0) {
+      await axios
+          .put(`http://localhost:8000/api/graduation/${this.form.id}/`, this.form)
+          .then(response => {
+              this.getGraduation()
+              alert("Тип выпуска обновлен")
+              this.modalActiveEdit = false
+          })
+  }
+},
+
+async submitForm() {
+  this.errors = []
+
+  if (this.form.typeGraduation === undefined) {
+      this.errors.push('Вы не ввели тип выпуска')
+  }
+
+  if (this.form.year === undefined ) {
+      this.errors.push('Вы не ввели год')
+  }
+
+  if (this.errors.length === 0) {
+      await axios
+          .post('http://localhost:8000/api/graduation/', this.form)
+          .then(response => {
+              this.getGraduation()
+              alert("Тип выпуска добавлен")
+              this.modalActive = false
+          })
+  }
+},
+
+
+
+openModalEdit(index) {
+this.form = { ...this.graduations[index] };
+this.modalActiveEdit = true;
+},
+
+// openModalEdit(specialityId) {
+//   this.form = { ...this.specialities.find(speciality => speciality.id === specialityId) };
+//   this.modalActiveEdit = true;
+
+// },
+openModal(index) {
+  this.form = { ...this.graduations[index] };
+  this.modalActive = true;
+},
+
+sortBy(key) {
+  if (this.sortKey === key) {
+    this.sortDirection[key] *= -1;
+  } else {
+    this.sortKey = key;
+    this.sortDirection[key] = 1;
+  }
+},
+
+getGraduation() {
+
+  axios.get('http://localhost:8000/api/graduation/').then(response => {
+      this.graduations = response.data
+      this.isLoading = false
+      
+  })
+
+},
+getEduLevel() {
+  axios.get('http://localhost:8000/api/edu_level/').then(response => {
+      this.edulevels = response.data
+  })
+
+},
+
+
+deleteSpeciality(specialityId) {
+if(confirm("Вы уверены что хотите удалить эту специальность?")) {
+  axios.delete(`http://localhost:8000/api/speciality/${specialityId}`)
+  .then(res=> {
+      alert("Специальность удалена")
+      this.getGraduation()
+  })
+}
+},
+
+
+}
+    
 }
 </script>
 
 <style>
+
+.nav-link-graduate{
+    font-weight: 700;
+    font-size: 20px;
+    padding: 5px 15px 0 15px;
+    margin-right: 5px;
+    color: #707070;
+   
+}
+
+.nav-link-graduate:hover{
+    color: #695CFE;
+    background-color: #fff;
+    border-radius: 10px 10px 0 0;
+    border: 1px solid #707070;
+    
+}
+
+.nav-link-graduate.active{
+    color: #695CFE;
+    background-color: #fff;
+    border-radius: 10px 10px 0 0;
+    border: 1px solid #707070;
+  
+}
+
+.nav-tabs {
+    border-bottom: 1px solid #707070;
+    
+}
+
 
 </style>

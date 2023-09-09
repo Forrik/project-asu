@@ -9,6 +9,8 @@ import Login from '../components/Login.vue'
 import Profile from '../components/Profile.vue'
 import Test from '../components/Test.vue'
 import Graduation from '../components/Graduation.vue'
+import NotFound from '../components/NotFound.vue'
+import Main from '../components/Main.vue'
 
 
 
@@ -50,6 +52,16 @@ const router = createRouter({
       name: 'test',
       component: Test
     },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'notFound',
+      component: NotFound
+    },
+    {
+      path: '/',
+      name: 'main',
+      component: Main
+    }
 
 
 

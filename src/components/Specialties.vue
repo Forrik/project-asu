@@ -92,16 +92,6 @@ import Add from './icons/Add.vue'
           </div>
         </div>
 
-
-        
-
-
-        <ul class="nav nav-tabs">
-        </ul>
-
-       
-        
-
         <div v-show="modalActiveEdit">
           <div   @click="modalActiveEdit = false;this.errors=''" class="modal-wrapper" >   </div>
            <div  class="modal-window">
@@ -409,6 +399,7 @@ export default {
           this.sortKey = key;
           this.sortDirection[key] = 1;
         }
+        
       },
 
     getSpecialities() {

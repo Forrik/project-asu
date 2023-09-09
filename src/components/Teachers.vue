@@ -91,9 +91,11 @@ import Add from './icons/Add.vue'
             <td >{{user.middle_name}}</td>
             <td >{{user.last_name}}</td>
             <td v-if="user.position">{{user.position.name}}</td>
-            <td v-else>Нет должности</td>
-            <td >{{user.jobArea}}</td>
-            <td >{{user.jobType}}</td>
+            <td v-else></td>
+            <td v-if="user.academicTitle">{{user.academicTitle.name}}</td>
+            <td v-else></td>
+            <td v-if="user.academicDegree">{{user.academicDegree.name}}</td>
+            <td v-else></td>
             <td>{{user.username}}</td>
             <td>Пароль</td>
             <td>
