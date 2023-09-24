@@ -15,7 +15,7 @@ import Add from './icons/Add.vue'
         <div class="col-8 content">
         <div class="card">
           <div class="table-responsive">
-            <input type="text" v-model="searchQuery" placeholder="Поиск" />
+            <input class="table-search" type="text" v-model="searchQuery" placeholder="Поиск" />
             <div v-if="isLoading" >
               <p class="text-center mt-5 mb-2"><h4>Подождите...</h4></p>
               <span class="loader"></span>
@@ -126,16 +126,12 @@ import Add from './icons/Add.vue'
                 <input v-model="form.abbreviation" class="form-control form-modal" 
                   placeholder="Введите аббревиатуру " minlength="2" maxlength="10" />
               </div>
-              <div class="form-outline mb-3">
-                <label class="form-label fw-bold ms-4" >Уровень образования</label>
-                <input v-model="form.edulevel" class="form-control form-modal" 
-                  placeholder="Введите уровень образования "   type="number" />
-              </div>
-              <select v-model="form.edulevel" class="form-select form-modal">
-                
-                <option value="1">Специалитет</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
+              <select v-model="form.edulevel"  class="form-select form-modal">
+               
+                <option v-for="edulevel in edulevels" v-bind:value="edulevel.id"  :key="edulevel.id" :value="edulevel.id">
+                  {{ edulevel.name}}
+                </option>
+
               </select>
 
               <template v-if="errors.length > 0">
@@ -458,6 +454,17 @@ export default {
   z-index: 101;
 }
 
+.table-search {
+  padding: 4px;
+  border:none;
+  border-bottom:1px solid #757575;
+  margin-top: 5px;
+  padding-left: 10px;
+}
+
+.table-search:focus {
+  outline: none
+}
 
 .modal-title {
   display: flex;
@@ -472,12 +479,13 @@ export default {
 .btn-modal-wrapper {
   display: flex;
   justify-content: center;
+
 }
 
 .btn-modal {
   width: 150px;
   font-size: 19px;
-  padding: 5px 10px;
+  padding: 6px 10px;
   border: none;
   background-color: #fff;
   font-weight: 700;

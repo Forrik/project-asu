@@ -191,8 +191,8 @@
                   <label class="form-label fw-bold text-body-tertiary" >Пароль</label>
                 </div>
       
-                <div class="d-flex justify-content-between align-items-center">
-                  <!-- Checkbox -->
+                <!-- <div class="d-flex justify-content-between align-items-center">
+                
                   <div class="form-check mb-0"> 
                     <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3" />
                     <label class="form-check-label" for="form2Example3">
@@ -200,7 +200,7 @@
                     </label>
                   </div>
                   <a href="#!" class="text-body">Forgot password?</a>
-                </div>
+                </div> -->
 
                 <template v-if="errors.length > 0">
                     <div class="alert alert-danger mt-3" >
@@ -211,7 +211,7 @@
       
                 <div class="text-center text-lg-start mt-4 pt-2">
                   <button class="btn btn-primary btn-lg"
-                    style="padding-left: 2.5rem; padding-right: 2.5rem;">Login</button>
+                    style="padding-left: 2.5rem; padding-right: 2.5rem;">Войти</button>
 
                 </div>
       

@@ -10,11 +10,6 @@
       <i class="icon">
         <svg xmlns="http://www.w3.org/2000/svg"  xmlns:xlink="http://www.w3.org/1999/xlink" width="25px" height="25px" viewBox="0 0 20 20" version="1.1">
     
-          <title>profile_round [#1342]</title>
-          <desc>Created with Sketch.</desc>
-          <defs>
-      
-      </defs>
           <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
               <g id="Dribbble-Light-Preview" transform="translate(-140.000000, -2159.000000)" fill="#707070">
                   <g id="icons" transform="translate(56.000000, 160.000000)">
@@ -160,6 +155,22 @@
             </a>
           </li>
           </RouterLink>
+          <RouterLink to="/my-tickets">
+            <li class="nav-link">
+              <a href="#">
+                <i class="icon"><SpecialtiesIcon /></i>
+                <span class="text nav-text">Мои заявки</span>
+              </a>
+            </li>
+          </RouterLink>
+          <RouterLink to="/tickets">
+            <li class="nav-link">
+              <a href="#">
+                <i class="icon"><SpecialtiesIcon /></i>
+                <span class="text nav-text">Ззявки</span>
+              </a>
+            </li>
+          </RouterLink>
         
   
         </ul>
@@ -188,7 +199,7 @@
 </div>
 
 
-  <div v-else>
+  <!-- <div v-else>
 
     <p>Вы не авторизованы</p>
 
@@ -199,7 +210,7 @@
     <button type="button" >Зарегистрируйтесь</button>
     </RouterLink>
 
-  </div>
+  </div> -->
   <Toast />
   <RouterView />
 
@@ -659,11 +670,12 @@ body.dark .home .text {
 
         beforeCreate() {
             this.userStore.initStore()
-
+            
             const token = this.userStore.user.access
 
             if (token) {
                 axios.defaults.headers.common["Authorization"] = "Bearer " + token;
+             
             } else {
                 axios.defaults.headers.common["Authorization"] = "";
             }

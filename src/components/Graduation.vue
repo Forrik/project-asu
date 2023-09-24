@@ -12,7 +12,7 @@ import Next from './icons/Next.vue'
            
             <div class="card">
                 <div class="table-responsive">
-                  <input type="text" v-model="searchQuery" placeholder="Поиск" />
+                  <input class="table-search" type="text" v-model="searchQuery" placeholder="Поиск" />
                   <div v-if="isLoading" >
                     <p class="text-center mt-5 mb-2"><h4>Подождите...</h4></p>
                     <span class="loader"></span>
@@ -67,18 +67,18 @@ import Next from './icons/Next.vue'
                         <td>{{graduation.typeGraduation}}</td>
                         <td><Edit @click="openModalEdit(index)" /></td> 
                         <td> <Delete @click="deleteSpeciality(speciality.id)" /> </td>
-                        <td><Next /></td>
+                        <td>
+                        <RouterLink :to="{ path: '/graduation/'+ graduation.id}">
+                        <Next />
+                      </RouterLink>
+                    </td>
                       </tr>
                     </tbody>
                   </table>
                   <div class="icon-add">
                   
                       <a @click="openModal" href="#">   <Add /></a>
-                   
-                  
-                      
                     </div>
-                      
                 </div>
               </div>
 

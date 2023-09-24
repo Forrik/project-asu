@@ -11,6 +11,13 @@ import Test from '../components/Test.vue'
 import Graduation from '../components/Graduation.vue'
 import NotFound from '../components/NotFound.vue'
 import Main from '../components/Main.vue'
+import GraduationItem from '../components/GraduationItem.vue'
+import MyTickets from '../components/MyTickets.vue'
+import Tickets from '../components/Tickets.vue'
+import {
+  useUserStore
+} from '@/stores/user'
+
 
 
 
@@ -48,6 +55,11 @@ const router = createRouter({
       component: Graduation
     },
     {
+      path: '/graduation/:id',
+      name: 'graduationItem',
+      component: GraduationItem
+    },
+    {
       path: '/test',
       name: 'test',
       component: Test
@@ -58,14 +70,37 @@ const router = createRouter({
       component: NotFound
     },
     {
+      path: '/my-tickets',
+      name: 'myTickets',
+      component: MyTickets
+    },
+    {
+      path: '/tickets',
+      name: 'tickets',
+      component: Tickets
+    },
+    {
       path: '/',
       name: 'main',
       component: Main
     }
-
-
-
   ]
+})
+
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = useUserStore().user.isAuthenticated
+
+  if (to.name !== 'login' && !isAuthenticated) {
+    next({
+      name: 'login'
+    })
+  } else if (to.name === 'login' && isAuthenticated) {
+    next({
+      name: 'main'
+    })
+  } else {
+    next()
+  }
 })
 
 export default router
