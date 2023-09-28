@@ -35,7 +35,7 @@
                                    <tr v-for="(newTicket, index) in newTickets" :key="index">
                                      <td >{{newTicket.id}} </td>
                                      <td >{{newTicket.dt_send}} </td>
-                                     <td ></td>
+                                     <td>{{newTicket.student.student_group.speciality_id.abbreviation}}-{{newTicket.student.student_group.number}}</td>
                                      <td >{{newTicket.student.last_name}} {{newTicket.student.middle_name}} {{newTicket.student.first_name}}</td>
                                      <td >{{newTicket.message}}</td>
                                      <td>

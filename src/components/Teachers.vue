@@ -34,6 +34,8 @@ export default {
         },
 
         methods: {
+
+       
           getUsers() {
            
             axios.get('http://localhost:8000/api/user?role=2').then(res => {
@@ -175,68 +177,6 @@ import Add from './icons/Add.vue'
       </div>
     </div>
   </div>
-
-  <!-- <div v-show="modalActiveEdit">
-    <div   @click="modalActiveEdit = false;this.errors=''" class="modal-wrapper" >   </div>
-     <div  class="modal-window">
-        <h4 class="modal-title py-3 fw-bold">Редактировать</h4>
-        <svg
-        @click="modalActiveEdit = false;this.errors=''"
-        class="icon-close"
-        xmlns="http://www.w3.org/2000/svg"
-        height="35"
-        viewBox="0 0 16 16"
-        width="35"
-        
-      >
-        <polygon
-          fill-rule="evenodd"
-          points="8 9.414 3.707 13.707 2.293 12.293 6.586 8 2.293 3.707 3.707 2.293 8 6.586 12.293 2.293 13.707 3.707 9.414 8 13.707 12.293 12.293 13.707 8 9.414"
-        />
-      </svg>
-      <form v-on:submit.prevent="updateSpeciality">
-        <div class="form-outline mb-3">
-          <label class="form-label fw-bold ms-4">Код</label>
-          
-          <input v-model="form.code" class="form-control form-modal" placeholder="Введите код специальности" v-mask="'##.##.##'" />
-        </div>
-        <div class="form-outline mb-3">
-          <label class="form-label fw-bold ms-4" >Наименование</label>
-          <input v-model="form.name" class="form-control form-modal" 
-            placeholder="Введите наименование "  minlength="6" maxlength="100" />
-        </div>
-        <div class="form-outline mb-3">
-          <label class="form-label fw-bold ms-4" >Аббревиатура</label>
-          <input v-model="form.abbreviation" class="form-control form-modal" 
-            placeholder="Введите аббревиатуру " minlength="2" maxlength="10" />
-        </div>
-        <select v-model="form.edulevel"  class="form-select form-modal">
-         
-          <option v-for="edulevel in edulevels" v-bind:value="edulevel.id"  :key="edulevel.id" :value="edulevel.id">
-            {{ edulevel.name}}
-          </option>
-
-        </select>
-
-        <template v-if="errors.length > 0">
-          <div class="alert alert-danger mt-3" >
-              <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
-          </div>
-      </template>
-
-    
-          <div class="btn-modal-wrapper">
-            <button class="btn-modal">Обновить</button>
-          </div>
-
-          
-
-        </form>
-        
-    
-     </div>
- 
-    </div> -->
 
   <div v-show="modalActive" >
     <div  @click="modalActive = false; this.errors=''" class="modal-wrapper" >   </div>

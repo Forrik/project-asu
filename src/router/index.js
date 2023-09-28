@@ -17,6 +17,7 @@ import Tickets from '../components/Tickets.vue'
 import {
   useUserStore
 } from '@/stores/user'
+import Forbidden from '../components/Forbidden.vue'
 
 
 
@@ -27,17 +28,28 @@ const router = createRouter({
   routes: [{
       path: '/teachers',
       name: 'teachers',
-      component: Teachers
+      component: Teachers,
+      meta: {
+        requiresAuth: true,
+        requiresAdmin: true,
+      },
     },
     {
       path: '/specialties',
       name: 'specialties',
-      component: Specialties
+      component: Specialties,
+      meta: {
+        requiresAuth: true,
+        requiresAdmin: true,
+      },
     },
     {
       path: '/registration',
       name: 'registration',
-      component: Registration
+      component: Registration,
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: '/login',
@@ -47,60 +59,126 @@ const router = createRouter({
     {
       path: '/profile/',
       name: 'profile',
-      component: Profile
+      component: Profile,
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: '/graduation',
       name: 'graduation',
-      component: Graduation
+      component: Graduation,
+      meta: {
+        requiresAuth: true,
+        requiresAdmin: true,
+      },
     },
     {
       path: '/graduation/:id',
       name: 'graduationItem',
-      component: GraduationItem
+      component: GraduationItem,
+      meta: {
+        requiresAuth: true,
+        requiresAdmin: true,
+      },
     },
     {
       path: '/test',
       name: 'test',
-      component: Test
+      component: Test,
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: '/:pathMatch(.*)*',
       name: 'notFound',
-      component: NotFound
+      component: NotFound,
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: '/my-tickets',
       name: 'myTickets',
-      component: MyTickets
+      component: MyTickets,
+      meta: {
+        requiresAuth: true,
+        requiresStudent: true,
+      },
     },
     {
       path: '/tickets',
       name: 'tickets',
-      component: Tickets
+      component: Tickets,
+      meta: {
+        requiresAuth: true,
+        requiresTeacher: true,
+      },
     },
     {
       path: '/',
       name: 'main',
-      component: Main
+      component: Main,
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/forbidden',
+      name: 'forbidden',
+      component: Forbidden,
+      meta: {
+        requiresAuth: true,
+      }
     }
   ]
 })
 
+
+
+
 router.beforeEach((to, from, next) => {
   const isAuthenticated = useUserStore().user.isAuthenticated
+  const isAdmin = useUserStore().user.isAdmin
+  const isTeacher = useUserStore().user.isTeacher
+  const isStudent = useUserStore().user.isStudent
 
-  if (to.name !== 'login' && !isAuthenticated) {
+  if (to.meta.requiresAuth && !isAuthenticated) {
     next({
       name: 'login'
     })
-  } else if (to.name === 'login' && isAuthenticated) {
+  } else if (to.meta.requiresStudent && !isStudent) {
     next({
-      name: 'main'
+      name: 'myTickets'
+    })
+  } else if (to.meta.requiresTeacher && !isTeacher) {
+    next({
+      name: 'tickets'
+    })
+  } else if (to.meta.requiresAdmin && !isAdmin) {
+    next({
+      name: 'specialties'
     })
   } else {
     next()
   }
 })
+
+// router.beforeEach((to, from, next) => {
+//   const isAuthenticated = useUserStore().user.isAuthenticated
+
+//   if (to.name !== 'login' && !isAuthenticated) {
+//     next({
+//       name: 'login'
+//     })
+//   } else if (to.name === 'login' && isAuthenticated) {
+//     next({
+//       name: 'main'
+//     })
+//   } else {
+//     next()
+//   }
+// })
 
 export default router

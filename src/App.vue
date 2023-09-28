@@ -1,7 +1,7 @@
 
 <template>
 
-<div v-if="userStore.user.isAuthenticated">
+<div >
 
   <div class="personal-area">
     <RouterLink :to="{name:'profile', params:{'id': userStore.user.id}}">
@@ -29,7 +29,7 @@
       </button>
   </div>
   
-  <nav  class="sidebar ">
+  <nav v-if="userStore.user.isAdmin"  class="sidebar ">
 
  
 
@@ -662,8 +662,9 @@ body.dark .home .text {
             console.log('Log out')
 
             this.userStore.removeToken()
-
+            location.reload()
             this.$router.push('/login')
+            
         }
 
         },
