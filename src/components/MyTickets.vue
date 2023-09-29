@@ -3,6 +3,7 @@
         <div class="row">
             <div class="col-3"></div>
             <div class="col-8 content">
+              <CustomAlert ref="alertComponent" />
                 <div class="card">
                     <div class="table-responsive">
                       <div v-if="isLoading" >
@@ -62,29 +63,21 @@
                       </svg>
                       <form  v-on:submit.prevent="AcceptTicket">
                         <div class="form-outline mb-3">
-                          <label class="form-label fw-bold ms-4">Преподаватель</label>
-                          
-                          <input v-model="form.teacher" class="form-control form-modal" 
-                            placeholder="Выберите преподавателя" />
+                          <label class="form-label fw-bold ms-4" >Преподаватель</label>
+                          <select v-model="form.teacher"  class="form-select form-modal">
+                            <option v-for="teacher in teachers" v-bind:key="teacher.id" :value="teacher.id">{{ teacher.last_name }} {{ teacher.first_name }} {{ teacher.middle_name }}</option>
+                          </select>
                         </div>
+                       
                         <div class="form-outline mb-3">
                           <label class="form-label fw-bold ms-4" >Мотивационное сообщение</label>
-                          <textarea v-model="form.message" name="message" cols="50" rows="10"></textarea>
-                          <input v-model="form.message" class="form-control form-modal" 
-                            placeholder="Введите мотивационное сообщение"  minlength="6" maxlength="100" />
+                          <textarea v-model="form.message" class="form-control form-message" id="exampleFormControlTextarea1" rows="3"></textarea>
                         </div>
                       
         
                   
                        
-                        <select v-model="form.teacher"  class="form-select form-modal">
-                          <option v-for="teacher in teachers" v-bind:key="teacher.id" :value="teacher.id">{{ teacher.last_name }} {{ teacher.first_name }} {{ teacher.middle_name }}</option>
-                       
-                          <!-- <option v-for="edulevel in edulevels" v-bind:value="edulevel.id"  :key="edulevel.id" :value="edulevel.id">
-                            {{ edulevel.name}}
-                          </option> -->
-        
-                        </select>
+
                    
           
                         <template v-if="errors.length > 0">
@@ -106,7 +99,7 @@
                      </div>
                  
                     </div>
-
+                    <CustomConfirm ref="confirmComponent" />
             </div>
         </div>
     </div>
@@ -115,6 +108,8 @@
 <script>
 import axios from 'axios'
 import { useUserStore } from '@/stores/user'
+import CustomAlert from './CustomAlert.vue'
+import CustomConfirm from './CustomConfirm.vue'
 
 export default {
 
@@ -145,7 +140,31 @@ export default {
       this.getTeachers();
     },
 
+    components: {
+        CustomAlert,
+        CustomConfirm
+  },
+
     methods: {
+
+      confirmAction(message) {
+      this.$refs.confirmComponent.show(message)
+        .then((confirmed) => {
+          if (confirmed) {
+            // Выполняем действие
+            console.log('Действие выполнено!');
+          } else {
+            console.log('Действие отменено!');
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+
+    showAlert(message) {
+      this.$refs.alertComponent.show(message);
+    },
 
       async AcceptTicket() {
         this.errors = []
@@ -184,6 +203,12 @@ export default {
 .btn-my-ticket{
   width: 200px;
   margin-bottom: 25px;
+}
+
+.form-message {
+  max-height:300px; 
+  width:90%; 
+  margin: 0 auto
 }
 
 </style>

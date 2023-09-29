@@ -74,7 +74,7 @@ const router = createRouter({
       },
     },
     {
-      path: '/graduation/:id',
+      path: '/graduation/:graduationId',
       name: 'graduationItem',
       component: GraduationItem,
       meta: {

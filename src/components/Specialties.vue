@@ -20,7 +20,7 @@
           <div class="card">
          
             <div class="table-responsive">
-              <input class="table-search" type="text" v-model="searchQuery" placeholder="Поиск" />
+              <!-- <input class="table-search" type="text" v-model="searchQuery" placeholder="Поиск" /> -->
               <div v-if="isLoading" >
                 <p class="text-center mt-5 mb-2"><h4>Подождите...</h4></p>
                 <span class="loader"></span>
@@ -159,10 +159,9 @@
             </div>
 
             <div>
-              <div>
-                <button @click="confirmAction">Выполнить действие</button>
+
                 <CustomConfirm ref="confirmComponent" />
-              </div>
+
             </div>
 
 
@@ -294,21 +293,6 @@
       },
 
       computed: {
-        filteredSpecialities() {
-      if (this.searchQuery === '') {
-        return this.specialities;
-      }
-
-      const query = this.searchQuery.toLowerCase();
-      return this.specialities.filter((speciality) => {
-        return (
-          speciality.code.toLowerCase().includes(query) ||
-          speciality.name.toLowerCase().includes(query) ||
-          speciality.abbreviation.toLowerCase().includes(query) ||
-          speciality.edulevel.toLowerCase().includes(query)
-        );
-      });
-    },
 
     sortedSpecialities() {
     return this.specialities.sort((a, b) => {
@@ -369,7 +353,7 @@
                   .put(`http://localhost:8000/api/speciality/${this.form.id}/`, this.form)
                   .then(response => {
                       this.getSpecialities()
-                      alert("Специальность обновлена")
+                      this.showAlert("Специальность обновлена")
                       this.modalActiveEdit = false
                   })
           }
@@ -488,7 +472,7 @@
     transform: translate(-50%, -50%);
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0,0,0, 0.5);
+    background-color: rgba(0,0,0, 0.4);
     z-index: 100;
   }
 
@@ -501,6 +485,7 @@
     height: 700px;
     background-color: #fff;
     z-index: 101;
+    border-radius: 12px;
   }
 
   .table-search {

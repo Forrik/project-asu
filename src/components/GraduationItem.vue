@@ -32,13 +32,19 @@
                                       <th scope="col">Количество часов</th>
                                     </tr>
                                   </thead>
-                                  <tbody >
-                                    <tr v-for="(user, index) in this.users" :key="index">
-                                      <td > {{user.id}} </td>
-                                      <td >{{user.first_name}} {{user.middle_name}} {{user.last_name}}</td>
-                                      <td >{{user.middle_name}}</td>
-                                      <td >{{user.last_name}}</td>
-                                      <td >{{user.vkrHours}}</td>
+                                  <tbody v-for="(user_graduation, index) in user_graduations" :key="index">
+                                    <tr v-for="(group, gIndex) in user_graduation.groups" :key="gIndex">
+                                      <td>{{ user_graduation.id }}</td>
+                                      <td>{{ user_graduation.first_name }} {{ user_graduation.middle_name }} {{ user_graduation.last_name }}</td>
+                                      <td>{{ group.group_name }}</td>
+                                      <td class="table-grouped">
+                                        <tr v-for="(student, sIndex) in group.students" :key="sIndex">
+                                        <td style="align-items: center; justify-content: center"> {{ student.first_name }} {{ student.middle_name }} {{ student.last_name}}</td>
+                                        <td> - {{ student.hours}} часов</td>
+                                      
+                                       </tr>
+                                       <td>сумма часов - {{ user_graduation.hours_sum}} </td>
+                                      </td>
                                     </tr>
                                   </tbody>
                                 </table>
@@ -136,13 +142,21 @@ export default {
             users: [],
             isLoading: true,
             groups: [],
+            user_graduations: [],
             
         }
     },
     mounted() {
             this.getUsers();
             this.getGroups();
+            
+            this.getGraduationUser();
         },
+    computed: {
+      graduationId() {
+      return this.$route.params.graduationId;
+    }
+    },
 
         methods: {
           getUsers() {
@@ -153,6 +167,12 @@ export default {
                 this.isLoading = false
                
             });
+          },
+          getGraduationUser() {
+            axios.get(`http://localhost:8000/api/user_graduation/${this.graduationId}`).then(res => {
+              this.user_graduations = res.data
+              this.isLoading = false
+            })
           },
 
           getGroups() {
@@ -178,5 +198,12 @@ export default {
 </script>
 
 <style>
+
+.table-grouped {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
 
 </style>

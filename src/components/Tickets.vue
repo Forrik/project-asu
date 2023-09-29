@@ -3,6 +3,7 @@
         <div class="row">
             <div class="col-3"></div>
             <div class="col-8 content">
+              <CustomAlert ref="alertComponent" />
                 <div>
                    <ul class="nav ">
                        <li class="nav-item"  v-on:click="counter = `newTickets`" >
@@ -105,7 +106,7 @@
                      </div>
                   
                    
-                     
+                     <CustomConfirm ref="confirmComponent" />
                  </div>
        </div>
     </div>
@@ -115,6 +116,8 @@
 <script>
 import axios from 'axios';
 import { useUserStore } from '@/stores/user'
+import CustomAlert from './CustomAlert.vue'
+import CustomConfirm from './CustomConfirm.vue'
 
 export default {
 
@@ -143,7 +146,31 @@ export default {
       this.ticketId = this.$route.params.ticketId;
 
     },
+
+    components: {
+        CustomAlert,
+        CustomConfirm
+  },
     methods: {
+
+      confirmAction(message) {
+      this.$refs.confirmComponent.show(message)
+        .then((confirmed) => {
+          if (confirmed) {
+            // Выполняем действие
+            console.log('Действие выполнено!');
+          } else {
+            console.log('Действие отменено!');
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+
+    showAlert(message) {
+      this.$refs.alertComponent.show(message);
+    },
          setActive(index) {
             this.activeIndex = index
         },
@@ -169,19 +196,27 @@ export default {
           })
         },
         acceptTicket(ticketId) {
-         if(confirm("Вы действительно хотите принять этот тикет?")) {
-          axios.post(`http://localhost:8000/api/ticket_status_update/${ticketId}`, { "ticketStatus": 2})
-          location.reload()
-          this.getAcceptedTickets()
-         }
+          this.$refs.confirmComponent.show("Вы действительно хотите принять эту заявку?").then((confirmed) => {
+            if (confirmed) {
+              axios.post(`http://localhost:8000/api/ticket_status_update/${ticketId}`, { "ticketStatus": 2})
+              location.reload()
+              this.getAcceptedTickets()
+            }
+          })
         },
         rejectTicket(ticketId) {
-         if(confirm("Вы действительно хотите отклонить этот тикет?")) {
-          axios.post(`http://localhost:8000/api/ticket_status_update/${ticketId}`, { "ticketStatus": 3})
-          location.reload()
-          this.getRejectedTickets()
-         }
-        }
+          this.$refs.confirmComponent.show("Вы действительно хотите отклонить эту заявку?").then((confirmed) => {
+            if (confirmed) {
+              axios.post(`http://localhost:8000/api/ticket_status_update/${ticketId}`, { "ticketStatus": 3})
+              location.reload()
+              this.getRejectedTickets()
+
+            }
+
+          }) 
+        } 
+        
+
 
     }
 }

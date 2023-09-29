@@ -12,7 +12,7 @@ import Next from './icons/Next.vue'
            
             <div class="card">
                 <div class="table-responsive">
-                  <input class="table-search" type="text" v-model="searchQuery" placeholder="Поиск" />
+                  <!-- <input class="table-search" type="text" v-model="searchQuery" placeholder="Поиск" /> -->
                   <div v-if="isLoading" >
                     <p class="text-center mt-5 mb-2"><h4>Подождите...</h4></p>
                     <span class="loader"></span>
@@ -182,38 +182,6 @@ import Next from './icons/Next.vue'
                    </div>
                
                   </div>
-                
-            
-
-                <!-- <div>
-                    <ul class="nav ">
-                        <li class="nav-item"  v-on:click="counter = 1" >
-                          <a class="nav-link-graduate" :class="{ active: activeIndex === 0 }" @click="setActive(0)" aria-current="page" href="#">Группы</a>
-                        </li>
-                        <li class="nav-item"  v-on:click="counter = 2" >
-                          <a class="nav-link-graduate" :class="{ active: activeIndex === 1 }" @click="setActive(1)" href="#">Норма времени</a>
-                        </li>
-                        <li class="nav-item"  v-on:click="counter = 3" >
-                          <a class="nav-link-graduate" :class="{ active: activeIndex === 2 }" @click="setActive(2)" href="#">Сводка</a>
-                        </li>
-                      </ul>
-                      <ul class="nav-tabs"></ul>
-                    <div v-if="counter === 1">
-                        <div class="card-body">
-                            <h1>1 страница</h1>
-                        </div>
-                      </div>
-                      <div v-else-if="counter === 2">
-                        <div class="card-body">
-                           <h1>2 страница</h1>
-                        </div>
-                      </div>
-                      <div v-else-if="counter === 3">
-                        <div class="card-body">
-                            <h1>3 страница</h1>
-                        </div>
-                      </div>
-                  </div> -->
         </div>
     </div>
 
