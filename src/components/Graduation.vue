@@ -66,7 +66,7 @@ import Next from './icons/Next.vue'
                         <td>{{graduation.year}}</td>
                         <td>{{graduation.typeGraduation}}</td>
                         <td><Edit @click="openModalEdit(index)" /></td> 
-                        <td> <Delete @click="deleteSpeciality(speciality.id)" /> </td>
+                        <td> <Delete @click="deleteGraduation(graduation.id)" /> </td>
                         <td>
                         <RouterLink :to="{ path: '/graduation/'+ graduation.id}">
                         <Next />
@@ -81,7 +81,8 @@ import Next from './icons/Next.vue'
                     </div>
                 </div>
               </div>
-
+              <CustomConfirm ref="confirmComponent" />
+              <CustomAlert ref="alertComponent" />
               <div v-show="modalActiveEdit">
                 <div   @click="modalActiveEdit = false; this.errors=''" class="modal-wrapper" >   </div>
                  <div  class="modal-window">
@@ -191,7 +192,8 @@ import Next from './icons/Next.vue'
 import axios from 'axios'
 import { mask } from 'vue-the-mask'
 import { ref } from 'vue';
-
+import CustomAlert from './CustomAlert.vue'
+import CustomConfirm from './CustomConfirm.vue'
 
 export default {
     name: 'Graduation',
@@ -231,6 +233,8 @@ export default {
         sortKey: ''
         }
     },
+
+   
     mounted() {
         this.getGraduation();
         this.getEduLevel();
@@ -238,22 +242,12 @@ export default {
 
     }, 
 
-    computed: {
-      filteredSpecialities() {
-    if (this.searchQuery === '') {
-      return this.specialities;
-    }
-
-    const query = this.searchQuery.toLowerCase();
-    return this.specialities.filter((speciality) => {
-      return (
-        speciality.code.toLowerCase().includes(query) ||
-        speciality.name.toLowerCase().includes(query) ||
-        speciality.abbreviation.toLowerCase().includes(query) ||
-        speciality.edulevel.toLowerCase().includes(query)
-      );
-    });
+    components: {
+        CustomAlert,
+        CustomConfirm
   },
+
+    computed: {
 
   sortedGraduations() {
   return this.graduations.sort((a, b) => {
@@ -273,6 +267,8 @@ export default {
     },
 
     methods: {
+
+     
 
 async updateGraduation() {
   this.errors = []
@@ -325,11 +321,7 @@ this.form = { ...this.graduations[index] };
 this.modalActiveEdit = true;
 },
 
-// openModalEdit(specialityId) {
-//   this.form = { ...this.specialities.find(speciality => speciality.id === specialityId) };
-//   this.modalActiveEdit = true;
 
-// },
 openModal(index) {
   this.form = { ...this.graduations[index] };
   this.modalActive = true;
@@ -345,13 +337,10 @@ sortBy(key) {
 },
 
 getGraduation() {
-
   axios.get('http://localhost:8000/api/graduation/').then(response => {
       this.graduations = response.data
       this.isLoading = false
-      
   })
-
 },
 getEduLevel() {
   axios.get('http://localhost:8000/api/edu_level/').then(response => {
@@ -360,17 +349,24 @@ getEduLevel() {
 
 },
 
+showAlert(message) {
+      this.$refs.alertComponent.show(message);
+    },
 
-deleteSpeciality(specialityId) {
-if(confirm("Вы уверены что хотите удалить эту специальность?")) {
-  axios.delete(`http://localhost:8000/api/speciality/${specialityId}`)
-  .then(res=> {
-      alert("Специальность удалена")
-      this.getGraduation()
-  })
+
+
+
+deleteGraduation(GraduationId) {
+  this.$refs.confirmComponent.show("Вы уверены что хотите удалить эту специальность?")
+    .then((confirmed) => {
+      if (confirmed) {
+        axios.delete(`http://localhost:8000/api/graduation/${GraduationId}`).then(response => {
+          this.getGraduation()
+          this.showAlert("Тип выпуска удален")
+        })
+      }
+    })
 }
-},
-
 
 }
     

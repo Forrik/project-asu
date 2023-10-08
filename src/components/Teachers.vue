@@ -76,7 +76,7 @@ import Add from './icons/Add.vue'
             <td v-if="user.academicDegree">{{user.academicDegree.name}}</td>
             <td v-else></td>
             <td>{{user.username}}</td>
-            <td>Пароль</td>
+            <td>*******</td>
             <td>
                 <Edit @click="openModalEdit(index)" />
               </td>
@@ -87,7 +87,7 @@ import Add from './icons/Add.vue'
         </tbody>
       </table>
       <div class="icon-add">
-        <Add @click="modalActive = !modalActive" />
+        <Add @click="openModal()" />
       </div>
     </div>
   </div>
@@ -346,6 +346,7 @@ export default {
            
             errors: [],
             isLoading: true,
+            modalActive: false,
             modalActiveEdit: false,
 
             form: {
@@ -429,8 +430,21 @@ return this.users.sort((a, b) => {
       this.$refs.alertComponent.show(message);
     },
 
+    
+
+    openModal() {
+      this.form = '';
+      this.modalActive = true;
+
+    },
+
     openModalEdit(index) {
     this.form = { ...this.users[index] };
+    this.form.academicTitle = this.users[index]?.academicTitle?.id;
+    this.form.academicDegree = this.users[index]?.academicDegree?.id;
+    this.form.position = this.users[index]?.position?.id;
+    // this.form.academicDegree = this.users[index].academicDegree.id;
+    // this.form.position = this.users[index].position.id;
     this.modalActiveEdit = true;
   },
 
@@ -608,6 +622,7 @@ return this.users.sort((a, b) => {
 
 table {
     text-align: center;
+    margin-bottom: 0 !important;
 }
 
 .modal-create-user {

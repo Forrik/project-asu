@@ -87,11 +87,7 @@
                 </tbody>
               </table>
               <div class="icon-add">
-              
                   <a @click="openModal" href="#">   <Add /></a>
-              
-              
-                  
                 </div>
                   
             </div>
@@ -203,13 +199,14 @@
 
             
                   <label class="form-label fw-bold ms-4" >Уровень образования</label>
-                  <select v-model="form.edulevel"  class="form-select form-modal">
-                    
-                    <option v-for="edulevel in edulevels" v-bind:value="edulevel.id"  :key="edulevel.id" :value="edulevel.id">
-                      {{ edulevel.name}}
+                  <select v-model="form.edulevel" class="form-select form-modal">
+                    <option v-for="edulevel in edulevels" :value="edulevel.id" :key="edulevel.id">
+                      <span v-for="speciality in edulevel.specialities" :key="speciality.id">
+                        {{ speciality.edulevel.name }}
+                      </span>
                     </option>
-
                   </select>
+                  
             
     
                   <template v-if="errors.length > 0">
@@ -394,6 +391,7 @@
 
         openModalEdit(index) {
     this.form = { ...this.specialities[index] };
+    this.form.edulevel = this.specialities[index]?.edulevel?.id;
     this.modalActiveEdit = true;
   },
 
