@@ -45,11 +45,11 @@ import Next from './icons/Next.vue'
                             <i class="bi bi-caret-up-fill"></i>
                           </template>
                         </th>
-                        <th @click="sortBy('typeGraduation')">Тип выпуска
-                          <template v-if="sortKey === 'typeGraduation' && sortDirection['typeGraduation'] === 1">
+                        <th @click="sortBy('graduation_type')">Тип выпуска
+                          <template v-if="sortKey === 'graduation_type' && sortDirection['graduation_type'] === 1">
                             <i class="bi bi-caret-down-fill"></i>
                           </template>
-                          <template v-if="sortKey === 'typeGraduation' && sortDirection['typeGraduation'] === -1">
+                          <template v-if="sortKey === 'graduation_type' && sortDirection['graduation_type'] === -1">
                             <i class="bi bi-caret-up-fill"></i>
                           </template>
                         </th>
@@ -62,9 +62,9 @@ import Next from './icons/Next.vue'
                     <tbody>
                       <tr v-for="(graduation, index) in sortedGraduations" :key="index">
                         <td>{{graduation.id}}</td>
-                        <td>{{graduation.year}} {{graduation.typeGraduation}}</td>
+                        <td>{{graduation.year}} {{graduation.graduation_type}}</td>
                         <td>{{graduation.year}}</td>
-                        <td>{{graduation.typeGraduation}}</td>
+                        <td>{{graduation.graduation_type}}</td>
                         <td><Edit @click="openModalEdit(index)" /></td> 
                         <td> <Delete @click="deleteGraduation(graduation.id)" /> </td>
                         <td>
@@ -83,6 +83,7 @@ import Next from './icons/Next.vue'
               </div>
               <CustomConfirm ref="confirmComponent" />
               <CustomAlert ref="alertComponent" />
+              
               <div v-show="modalActiveEdit">
                 <div   @click="modalActiveEdit = false; this.errors=''" class="modal-wrapper" >   </div>
                  <div  class="modal-window">
@@ -105,7 +106,7 @@ import Next from './icons/Next.vue'
                     <div class="form-outline mb-3">
                       <label class="form-label fw-bold ms-4">Тип выпуска</label>
                       
-                      <input v-model="form.typeGraduation" type="text"  class="form-control form-modal" placeholder="Введите тип выпуска " />
+                      <input v-model="form.graduation_type" type="text"  class="form-control form-modal" placeholder="Введите тип выпуска " />
                     </div>
                     <div class="form-outline mb-3">
                       <label class="form-label fw-bold ms-4" >Год</label>
@@ -156,7 +157,7 @@ import Next from './icons/Next.vue'
                       <div class="form-outline mb-3">
                         <label class="form-label fw-bold ms-4">Тип выпуска</label>
                         
-                        <input v-model="form.typeGraduation" class="form-control form-modal" 
+                        <input v-model="form.graduation_type" class="form-control form-modal" 
                           placeholder="Введите тип выпуска" />
                       </div>
                       <div class="form-outline mb-3">
@@ -224,7 +225,7 @@ export default {
         modalActive: false,
         isLoading: true,
         form: {
-          typeGraduation: '',
+          graduation_type: '',
           year: '',
         },
         errors: [],
@@ -273,7 +274,7 @@ export default {
 async updateGraduation() {
   this.errors = []
   
-  if (this.form.typeGraduation === '' ) {
+  if (this.form.graduation_type === '' ) {
       this.errors.push('Вы не ввели тип выпуска')
   }
 
@@ -295,7 +296,7 @@ async updateGraduation() {
 async submitForm() {
   this.errors = []
 
-  if (this.form.typeGraduation === undefined) {
+  if (this.form.graduation_type === undefined) {
       this.errors.push('Вы не ввели тип выпуска')
   }
 

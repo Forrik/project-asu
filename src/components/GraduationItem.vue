@@ -11,8 +11,13 @@ import Add from './icons/Add.vue'
         <div class="row">
             <div class="col-3"></div>
             <div class="col-8 content">
-
-                <div class="graduation-name">Выпуск: {{graduations.year}}, {{graduations.typeGraduation}}</div> 
+                <div>
+                  <div><button @click="this.showGroupItem = false; this.showTable = true;
+                    " class="btn btn-primary">Назад</button></div>
+                  <div class="graduation-name">Выпуск: {{graduations.year}}, {{graduations.graduation_type}}</div> 
+                
+                </div>
+                
 
                  <div>
                   
@@ -78,46 +83,54 @@ import Add from './icons/Add.vue'
                                         <tr>
                                           <td> {{user_graduation.id}} </td>
                                           <td >{{user_graduation.first_name}} {{user_graduation.middle_name}} {{user_graduation.last_name}}</td>
-                                          <td>{{user_graduation.hours_sum - user_graduation.hours_sum}}</td>
-                                          <td> {{user_graduation.hours_sum}}</td>
+                                          <td>{{user_graduation.vkr_hours}}</td>
+                                          <td>{{user_graduation.vkr_hours - user_graduation.hours_sum}}</td>
                                           <td><Edit /></td> 
                                           <td><Delete /></td>
                                         </tr>
                                       
                                       </tbody>
-                                      <a @click="openModalHours" href="#">   <Add /></a>
+                                      <a @click="openModalAddHours" href="#">   <Add /></a>
                                       <tbody v-if="user_graduations.length === 0"> <tr><td colspan="6"> Нет данных</td></tr></tbody>
                                 </table>
-                                <table v-else-if="counter === `groups`"  class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                          <th scope="col">Группа</th>
-                                          <th scope="col">Специальность</th>
-                                          <th scope="col">Уровень образования</th>
-                                          <th scope="col">Курс</th>
-                                          <th scope="col">Номер</th>
-                                          <th scope="col">Форма обучения</th>
-                                          <th scope="col"></th>
-                                          <th scope="col"></th>
-                                          <th scope="col"></th>
-                                        </tr>
-                                      </thead>
-                                      <tbody v-for="(group, index) in groups" :key="index">
-                                        <tr>
-                                       <td>{{group.speciality.abbreviation}}-{{group.number}}</td>
-                                       <td>{{group.speciality.name}}</td>
-                                       <td>{{group.speciality.education_level.name}}</td>
-                                       <td>{{group.course}}</td>
-                                       <td>{{group.number}}</td>
-                                       <td>{{group.education_form.name}}</td>
-                                       <td><Edit /></td> 
-                                       <td> <Delete /> </td>
-                                       <td><Next /></td>
-                                        </tr>
-                                      </tbody>
-                                      <tbody v-if="user_graduations.length === 0"> <tr><td colspan="9"> Нет данных</td></tr></tbody>
-                                      <a @click="openModal" href="#">   <Add /></a>
-                                </table>
+                           
+                              <table v-if="showTable && counter === 'groups'"  class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                      <th scope="col">Группа</th>
+                                      <th scope="col">Специальность</th>
+                                      <th scope="col">Уровень образования</th>
+                                      <th scope="col">Курс</th>
+                                      <th scope="col">Номер</th>
+                                      <th scope="col">Форма обучения</th>
+                                      <th scope="col"></th>
+                                      <th scope="col"></th>
+                                      <th scope="col"></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody v-for="(group, index) in groups" :key="index">
+                                    <tr>
+                                   <td>{{group.speciality.abbreviation}}-{{group.number}}</td>
+                                   <td>{{group.speciality.name}}</td>
+                                   <td>{{group.speciality.education_level.name}}</td>
+                                   <td>{{group.course}}</td>
+                                   <td>{{group.number}}</td>
+                                   <td>{{group.education_form.name}}</td>
+                                   <td><Edit /></td> 
+                                   <td> <Delete /> </td>
+                                   <td>
+                                      <Next @next-clicked="handleNextClick" :group="parseInt(group.id)"  />
+                                  </td>
+                                    </tr>
+                                  </tbody>
+                                
+                                  <tbody v-if="user_graduations.length === 0"> <tr><td colspan="9"> Нет данных</td></tr></tbody>
+                                  <a @click="openModalGroups" href="#"> <Add /></a>
+            
+                            </table>
+                            <GroupItem v-if="showGroupItem" :groupId="selectedGroupId" />
+                            
+
                                 <table v-else-if="counter === `timeNorm`"  class="table table-bordered table-hover">
                                     <thead>
                                         <tr>
@@ -141,7 +154,7 @@ import Add from './icons/Add.vue'
                                       </tbody>
                                       <tbody v-if="time_norms.length === 0"> <tr><td colspan="6"> Нет данных</td></tr></tbody>
                                      
-                                        <a @click="openModal" href="#">   <Add /></a>
+                                        <a @click="openModalAddTimeNorm" href="#">   <Add /></a>
                                      
                                 </table>
                                
@@ -155,31 +168,36 @@ import Add from './icons/Add.vue'
         </div>
         
         </div>
+        
 
-        <div v-show="modalActiveHours" >
-          <div  @click="modalActiveHours = false; this.errors=''" class="modal-wrapper" >   </div>
+        <div v-show="openModalTimeNorm" >         
+          <div  @click="openModalTimeNorm = false; this.errors=''" class="modal-wrapper" />
            <div  class="modal-window">
               <h4 class="modal-title py-3 fw-bold">Добавить</h4>
               <svg
-              @click="modalActiveHours = false; this.errors=''"
+              @click="openModalTimeNorm = false; this.errors=''"
               class="icon-close"
               xmlns="http://www.w3.org/2000/svg"
               height="35"
               viewBox="0 0 16 16"
-              width="35"
-              
-            >
+              width="35">
               <polygon
                 fill-rule="evenodd"
                 points="8 9.414 3.707 13.707 2.293 12.293 6.586 8 2.293 3.707 3.707 2.293 8 6.586 12.293 2.293 13.707 3.707 9.414 8 13.707 12.293 12.293 13.707 8 9.414"
               />
             </svg>
-            <form  v-on:submit.prevent="submitForm">
+            <div >
               <div class="form-outline mb-3">
-                <label class="form-label fw-bold ms-4">Преподаватель</label>
+                <label class="form-label fw-bold ms-4">Специальность</label>
                 
-                <select v-model="form.teacher"  class="form-select form-modal">
-                  <option v-for="teacher in teachers" v-bind:key="teacher.id" :value="teacher.id">{{ teacher.last_name }} {{ teacher.first_name }} {{ teacher.middle_name }}</option>
+                <select v-model="form.speciality"  class="form-select form-modal">
+                  <option v-for="speciality in specialities" v-bind:key="speciality.id" :value="speciality.id">{{ speciality.code }} {{ speciality.name }}</option>
+                </select>
+              </div>
+              <div class="form-outline mb-3">
+                <label class="form-label fw-bold ms-4" >Вид консультации</label>
+                <select v-model="form.consultancy_type" class="form-select form-modal" >
+                  <option v-for="consultancy_type in consultancy_types" v-bind:key="consultancy_type.id" :value="consultancy_type.id">{{ consultancy_type.name }}</option>
                 </select>
               </div>
               <div class="form-outline mb-3">
@@ -195,26 +213,72 @@ import Add from './icons/Add.vue'
 
           
                 <div class="btn-modal-wrapper">
-                  <button class="btn-modal">Добавить</button>
+                  <button @click="addTimeNorm" class="btn-modal">Добавить</button>
                 </div>
-
-                
-
-              </form>
-              
-          
+               </div>
            </div>
-       
           </div>
+
+
+
+        <div v-show="openModalCreateHours" >         
+          <div  @click="openModalCreateHours = false; this.errors=''" class="modal-wrapper" />
+           <div  class="modal-window">
+              <h4 class="modal-title py-3 fw-bold">Добавить</h4>
+              <svg
+              @click="openModalCreateHours = false; this.errors=''"
+              class="icon-close"
+              xmlns="http://www.w3.org/2000/svg"
+              height="35"
+              viewBox="0 0 16 16"
+              width="35">
+              <polygon
+                fill-rule="evenodd"
+                points="8 9.414 3.707 13.707 2.293 12.293 6.586 8 2.293 3.707 3.707 2.293 8 6.586 12.293 2.293 13.707 3.707 9.414 8 13.707 12.293 12.293 13.707 8 9.414"
+              />
+            </svg>
+            <div >
+              <div class="form-outline mb-3">
+                <label class="form-label fw-bold ms-4">Преподаватель</label>
+                
+                <select v-model="form.teacher"  class="form-select form-modal">
+                  <option v-for="teacher in teachers" v-bind:key="teacher.id" :value="teacher.id">{{ teacher.first_name }} {{ teacher.middle_name }} {{ teacher.last_name }}</option>
+                </select>
+              </div>
+              <div class="form-outline mb-3">
+                <label class="form-label fw-bold ms-4" >Количество часов</label>
+                <input v-model="form.hours" class="form-control form-modal" placeholder="Введите количество часов" />
+              </div>
+
+                <div class="btn-modal-wrapper">
+                  <button @click="addHours" class="btn-modal">Добавить</button>
+                </div>
+               </div>
+           </div>
+          </div>
+
+
+        
+
+         
+          
+
+          
+          
+          
         
     </div>
+    
+
+       
 </template>
 
 <script >
 import axios from 'axios';
+import GroupItem from './GroupItem.vue';
 
 export default {
-    name: 'Graduation',
+    name: 'GraduationItem',
     
     data () {
         
@@ -229,36 +293,121 @@ export default {
             user_graduations: [],
             graduations: [],
             time_norms: [],
-            modalActiveHours: false,
-            modalActiveHoursEdit: false,
+            showGroupItem: false,
+            showTable: true,
+            openModalTimeNorm: false,
+            openModalCreateHours: false,
+            vkr_hours: [],
+            selectedGroupId: null,
             form: {
                 teacher: '',
                 hours: '',
+                speciality: '',
+                course: '',
+                number: '',
+                education_form: '',
+                graduation: '',
+
             },
             errors: [],
         }
     },
     mounted() {
-            this.getUsers();
+            this.getTeachers();
             this.getGroups();
             this.getGraduationUser();
             this.getGraduation();
             this.getTimeNorm();
+            this.getSpecialities();
+            this.getEduForm();
+            this.getVkrHours();
+            this.getConsultants()
+            
+            
         },
     computed: {
       graduationId() {
       return this.$route.params.graduationId
     },
+    components: {
+      GroupItem,
+    }
 
 
     },
 
         methods: {
-          getUsers() {
-           
+
+          async addTimeNorm() {
+  this.errors = [];
+
+  if (this.form.speciality === undefined ) {
+    this.errors.push('Вы не ввели специальность');
+  }
+
+  if (this.form.consultancy_type === undefined  ) {
+    this.errors.push('Вы не ввели вид консультации');
+  }
+
+  if (this.form.hours === undefined) {
+    this.errors.push('Вы не ввели количество часов');
+  }
+
+  if (this.errors.length === 0) {
+    await axios
+      .post(`http://localhost:8000/api/time_norm/`, {
+        speciality: this.form.speciality,
+        consultancy_type: this.form.consultancy_type,
+        hours: this.form.hours,
+        graduation: this.graduationId,
+      })
+      .then(response => {
+        this.openModalTimeNorm = false;
+        this.errors = []; // Сброс ошибок
+      });
+  }
+},
+          async addHours() {
+  this.errors = [];
+
+  if (this.form.teacher === undefined ) {
+    this.errors.push('Вы не ввели специальность');
+  }
+
+  if (this.form.hours === undefined  ) {
+    this.errors.push('Вы не ввели вид консультации');
+  }
+
+  if (this.errors.length === 0) {
+    await axios
+      .post(`http://localhost:8000/api/vkr_hours/`, {
+       
+        teacher: this.form.teacher,
+        hours: this.form.hours,
+        year: this.graduations.year,
+      })
+      .then(response => {
+        this.openModalCreateHours = false;
+        this.errors = []; // Сброс ошибок
+      });
+  }
+},
+    
+
+handleNextClick(group) {
+    this.selectedGroupId = group;
+    this.showGroupItem = true;
+    this.showTable = false;
+  },
+          toggleViews() {
+    this.showGroupItem = !this.showGroupItem;
+    this.showTable = !this.showTable;
+  },
+          getTeachers() {
+          
             axios.get('http://localhost:8000/api/user?role=2').then(res => {
                 
-                this.users = res.data
+                this.teachers = res.data
                 this.isLoading = false
                 
             });
@@ -266,6 +415,21 @@ export default {
           getGraduationUser() {
             axios.get(`http://localhost:8000/api/user_graduation/${this.graduationId}`).then(res => {
               this.user_graduations = res.data
+              this.isLoading = false
+            })
+          },
+          
+          getVkrHours() {
+            axios.get(`http://localhost:8000/api/vkr_hours/`).then(res => {
+              this.vkr_hours = res.data
+
+              
+            })
+          },
+
+          getConsultants() {
+            axios.get(`http://localhost:8000/api/consultancy_type/`).then(res => {
+              this.consultancy_types = res.data
               this.isLoading = false
             })
           },
@@ -284,13 +448,26 @@ export default {
           })
 
 },
+          getEduForm(){
+            axios.get(`http://localhost:8000/api/edu_form/`).then(res =>{
+              this.edu_forms = res.data
+
+            })
+          },
           getTimeNorm() {
             axios.get(`http://localhost:8000/api/time_norm?graduation=${this.graduationId}`).then(res =>{
               this.time_norms = res.data
               console.log(this.time_norms)
             })
           },
+
+          getSpecialities() {
+            axios.get('http://localhost:8000/api/speciality/').then(res => {
+              this.specialities = res.data
+            })
+          },
           
+       
           
           deleteUser(userId) {
            if(confirm('Вы уверены, что хотите удалить учетную запись?')) {
@@ -304,14 +481,28 @@ export default {
           setActive(index) {
             this.activeIndex = index
         },  
-      
-        openModalHours(index) {
-this.form = { ...this.graduations[index] };
-this.modalActiveHours = true;
-},
 
-
+        openModalAddTimeNorm(index) {
+          this.form={
+            speciality: '',
+            consultancy_type: '',
+            hours: '',
+            graduation: this.graduationId,
+          }
+          
+          this.openModalTimeNorm = true;
         },
+
+        openModalAddHours(index) {
+          this.form={
+            teacher: '',
+            hours: '',
+            graduation: this.graduationId,
+          }
+          
+          this.openModalCreateHours = true;
+        },
+      },
 }
 </script>
 

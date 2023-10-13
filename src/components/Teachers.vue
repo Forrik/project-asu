@@ -71,9 +71,9 @@ import Add from './icons/Add.vue'
             <td >{{user.last_name}}</td>
             <td v-if="user.position">{{user.position.name}}</td>
             <td v-else></td>
-            <td v-if="user.academicTitle">{{user.academicTitle.name}}</td>
+            <td v-if="user.academic_title">{{user.academic_title.name}}</td>
             <td v-else></td>
-            <td v-if="user.academicDegree">{{user.academicDegree.name}}</td>
+            <td v-if="user.academic_degree">{{user.academic_degree.name}}</td>
             <td v-else></td>
             <td>{{user.username}}</td>
             <td>*******</td>
@@ -133,42 +133,35 @@ import Add from './icons/Add.vue'
             placeholder="Введите отчество" />
         </div>
         <div class="form-outline mb-3">
-          <label class="form-label fw-bold ms-4" >Должность</label>
-          <select v-model="form.position"  class="form-select form-modal">
-            
-            <option v-for="position in positions" v-bind:value="position.id"  :key="position.id" :value="position.id">
-              {{ position.name}}
-            </option>
-
-          </select>
+          <label class="form-label fw-bold ms-4">Логин</label>
+          <input v-model="form.username" class="form-control form-modal" 
+            placeholder="Введите логин" />
         </div>
       </div>
         <div class="form-item">
           <div class="form-outline mb-3">
-            <label class="form-label fw-bold ms-4" >Ученое звание</label>
-            <select v-model="form.academicTitle"  class="form-select form-modal">
+            <label class="form-label fw-bold ms-4" >Должность</label>
+            <select v-model="form.position"  class="form-select form-modal">
               
-              <option v-for="academicTitle in academicTitles" v-bind:value="academicTitle.id"  :key="academicTitle.id" :value="academicTitle.id">
-                {{academicTitle.name}}
+              <option v-for="position in positions" v-bind:value="position.id"  :key="position.id" :value="position.id">
+                {{ position.name}}
               </option>
   
+            </select>
+          </div>
+          <div class="form-outline mb-3">
+            <label class="form-label fw-bold ms-4" >Ученое звание</label>
+            <select v-model="form.academic_title" class="form-select form-modal">
+              <option v-for="academic_title in academic_titles" :value="academic_title.id">{{ academic_title.name }}</option>
             </select>
           </div>
           <div class="form-outline mb-3">
             <label class="form-label fw-bold ms-4" >Ученая степень</label>
-            <select v-model="form.academicDegree"  class="form-select form-modal">
-              
-              <option v-for="academicDegree in academicDegrees" v-bind:value="academicDegree.id"  :key="academicDegree.id" :value="academicDegree.id">
-                {{ academicDegree.name}}
-              </option>
-  
+            <select v-model="form.academic_degree" class="form-select form-modal">
+              <option v-for="academic_degree in academic_degrees" :value="academic_degree.id">{{ academic_degree.name }}</option>
             </select>
           </div>
-          <div class="form-outline mb-3">
-            <label class="form-label fw-bold ms-4">Логин</label>
-            <input v-model="form.username" class="form-control form-modal" 
-              placeholder="Введите логин" />
-          </div>
+         
           <div class="form-outline mb-3">
             <label class="form-label fw-bold ms-4">Пароль</label>
             <div class="input-group mb-3"><input v-model="form.password" class="form-control form-modal" 
@@ -243,43 +236,44 @@ import Add from './icons/Add.vue'
           </div>
 
           <div class="form-outline mb-3">
-            <label class="form-label fw-bold ms-4" >Должность</label>
-            <select v-model="form.position"  class="form-select form-modal">
-              
-              <option v-for="position in positions" v-bind:value="position.id"  :key="position.id" :value="position.id">
-                {{ position.name}}
-              </option>
-  
-            </select>
+            <label class="form-label fw-bold ms-4">Логин</label>
+            <input v-model="form.username" class="form-control form-modal" 
+              placeholder="Введите логин" />
           </div>
         </div>
           <div class="form-item">
             <div class="form-outline mb-3">
-              <label class="form-label fw-bold ms-4" >Ученое звание</label>
-              <select v-model="form.academicTitle"  class="form-select form-modal">
+              <label class="form-label fw-bold ms-4" >Должность</label>
+              <select v-model="form.position"  class="form-select form-modal">
                 
-                <option v-for="academicTitle in academicTitles" v-bind:value="academicTitle.id"  :key="academicTitle.id" :value="academicTitle.id">
-                  {{academicTitle.name}}
+                <option v-for="position in positions" v-bind:value="position.id"  :key="position.id" :value="position.id">
+                  {{ position.name}}
+                </option>
+    
+              </select>
+            </div>
+            <div class="form-outline mb-3">
+              <label class="form-label fw-bold ms-4" >Ученое звание</label>
+              <select v-model="form.academic_title"  class="form-select form-modal">
+                
+                <option v-for="academic_title in academic_titles" v-bind:value="academic_title.id"  :key="academic_title.id" :value="academic_title.id">
+                  {{academic_title.name}}
                 </option>
     
               </select>
             </div>
             <div class="form-outline mb-3">
               <label class="form-label fw-bold ms-4" >Ученая степень</label>
-              <select v-model="form.academicDegree"  class="form-select form-modal">
+              <select v-model="form.academic_degree"  class="form-select form-modal">
                 
-                <option v-for="academicDegree in academicDegrees" v-bind:value="academicDegree.id"  :key="academicDegree.id" :value="academicDegree.id">
-                  {{ academicDegree.name}}
+                <option v-for="academic_degree in academic_degrees" v-bind:value="academic_degree.id"  :key="academic_degree.id" :value="academic_degree.id">
+                  {{ academic_degree.name}}
                 </option>
     
               </select>
             </div>
             
-            <div class="form-outline mb-3">
-              <label class="form-label fw-bold ms-4">Логин</label>
-              <input v-model="form.username" class="form-control form-modal" 
-                placeholder="Введите логин" />
-            </div>
+          
             <div class="form-outline mb-3">
               <label class="form-label fw-bold ms-4">Пароль</label>
               <div class="input-group mb-3"><input v-model="form.password" class="form-control form-modal" 
@@ -338,8 +332,8 @@ export default {
             last_name: 1,
             middle_name: 1,
             position: 1,
-            academicTitle: 1,
-            academicDegree: 1
+            academic_title: 1,
+            academic_degree: 1
           },
           sortKey: '',
             users: [],
@@ -356,11 +350,14 @@ export default {
           username: '',
           password: '',
           position: '',
-          academicTitle: '',
-          academicDegree: '',
+          academic_title: '',
+          academic_degree: '',
           role: 2,
           sortKey: '',
         },
+        positions: [],
+        academic_titles: [],
+        academic_degrees: [],
             
         }
     },
@@ -433,18 +430,32 @@ return this.users.sort((a, b) => {
     
 
     openModal() {
-      this.form = '';
+      this.form = {
+        first_name: '',
+        last_name: '',
+        middle_name: '',
+        username: '',
+        password: '',
+        position: '',
+        academic_title: '',
+        academic_degree: '',
+        role: 2,
+        sortKey: '',
+      };
       this.modalActive = true;
-
+      window.scrollTo(0, 0);
+     
+      
+      
     },
 
     openModalEdit(index) {
     this.form = { ...this.users[index] };
-    this.form.academicTitle = this.users[index]?.academicTitle?.id;
-    this.form.academicDegree = this.users[index]?.academicDegree?.id;
+    this.form.academic_title = this.users[index]?.academic_title?.id;
+    this.form.academic_degree = this.users[index]?.academic_degree?.id;
     this.form.position = this.users[index]?.position?.id;
-    // this.form.academicDegree = this.users[index].academicDegree.id;
-    // this.form.position = this.users[index].position.id;
+    this.form.role = this.users[index]?.role?.id;
+    window.scrollTo(0, 0);
     this.modalActiveEdit = true;
   },
 
@@ -473,7 +484,9 @@ return this.users.sort((a, b) => {
             this.errors.push('Вы не ввели пароль')
         }
 
+
         if (this.errors.length === 0) {
+            console.log(this.form)
             await axios
                 .post('http://localhost:8000/api/user/', this.form)
                 .then(response => {
@@ -504,6 +517,8 @@ return this.users.sort((a, b) => {
 
 
         if (this.errors.length === 0) {
+          console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+          console.log(this.form.role);
             await axios
                 .put(`http://localhost:8000/api/user/${this.form.id}/`, this.form)
                 .then(response => {
@@ -534,13 +549,13 @@ return this.users.sort((a, b) => {
 
       getAcademicTitle() {
         axios.get('http://localhost:8000/api/academic_title/').then(response => {
-            this.academicTitles = response.data
+            this.academic_titles = response.data
         })
       },
 
       getAcademicDegree() {
           axios.get('http://localhost:8000/api/academic_degree/').then(response => {
-              this.academicDegrees = response.data
+              this.academic_degrees = response.data
           })
 
       },

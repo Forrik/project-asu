@@ -28,7 +28,7 @@
                             <td>{{ticket.dt_send}}</td>
                             <td>{{ticket.teacher.last_name}} {{ticket.teacher.first_name}} {{ticket.teacher.middle_name}}</td>
                             <td>{{ticket.message}}</td>
-                            <td>{{ticket.ticketStatus.name}}</td>
+                            <td>{{ticket.ticket_status.name}}</td>
                             <td>{{ticket.dt_response}}</td>
                           </tr>
                           <tr v-show="tickets.length === 0">

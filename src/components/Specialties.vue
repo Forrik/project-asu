@@ -61,11 +61,11 @@
                         <i class="bi bi-caret-up-fill"></i>
                       </template>
                     </th>
-                    <th @click="sortBy('edulevel')">Уровень образования
-                      <template v-if="sortKey === 'edulevel' && sortDirection['edulevel'] === 1">
+                    <th @click="sortBy('education_level')">Уровень образования
+                      <template v-if="sortKey === 'education_level' && sortDirection['education_level'] === 1">
                         <i class="bi bi-caret-down-fill"></i>
                       </template>
-                      <template v-if="sortKey === 'edulevel' && sortDirection['edulevel'] === -1">
+                      <template v-if="sortKey === 'education_level' && sortDirection['education_level'] === -1">
                         <i class="bi bi-caret-up-fill"></i>
                       </template>
                     </th>
@@ -79,7 +79,7 @@
                     <td>{{speciality.code}}</td>
                     <td>{{speciality.name}}</td>
                     <td>{{speciality.abbreviation}}</td>
-                    <td>{{speciality.edulevel.name}}</td>
+                    <td>{{speciality.education_level.name}}</td>
                     <td><Edit @click="openModalEdit(index)" /></td> 
                     <td> <Delete @click="deleteSpeciality(speciality.id)" /> </td>
                   
@@ -128,9 +128,9 @@
                 </div>
                 <label class="form-label fw-bold ms-4" >Уровень образования</label>
 
-                <select v-model="form.edulevel"  class="form-select form-modal">
-                  <option v-for="edulevel in edulevels" v-bind:value="edulevel.id" :key="edulevel.id" :value="edulevel.id">
-                    {{ edulevel.name }}
+                <select v-model="form.education_level"  class="form-select form-modal">
+                  <option v-for="education_level in education_levels" v-bind:value="education_level.id" :key="education_level.id" :value="education_level.id">
+                    {{ education_level.name }}
                   </option>
 
                 </select>
@@ -199,12 +199,11 @@
 
             
                   <label class="form-label fw-bold ms-4" >Уровень образования</label>
-                  <select v-model="form.edulevel" class="form-select form-modal">
-                    <option v-for="edulevel in edulevels" :value="edulevel.id" :key="edulevel.id">
-                      <span v-for="speciality in edulevel.specialities" :key="speciality.id">
-                        {{ speciality.edulevel.name }}
-                      </span>
+                  <select v-model="form.education_level" class="form-select form-modal">
+                    <option v-for="education_level in education_levels" v-bind:value="education_level.id" :key="education_level.id" :value="education_level.id">
+                      {{ education_level.name }}
                     </option>
+                  
                   </select>
                   
             
@@ -257,7 +256,7 @@
             code: 1,
             name: 1,
             abbreviation: 1,
-            edulevel: 1
+            education_level: 1
           },
           modalActiveEdit: false,
           modalActive: false,
@@ -266,11 +265,11 @@
             code: '',
             name: '',
             abbreviation: '',
-            edulevel : '',
+            education_level : '',
           },
           errors: [],
           specialities: [],
-          edulevels: [],
+          education_levels: [],
           sortKey: ''
         }
       },
@@ -284,7 +283,7 @@
 
       mounted() {
           this.getSpecialities();
-          this.getEduLevel();
+          this.getEducationLevel();
           this.specialityId = this.$route.params.specialityId;
 
       },
@@ -371,7 +370,7 @@
               this.errors.push('Вы не ввели аббревиатуру')
           }
 
-          if (this.form.edulevel === undefined) {
+          if (this.form.education_level === undefined) {
               this.errors.push('Вы не ввели уровень образования')
           }
 
@@ -391,7 +390,7 @@
 
         openModalEdit(index) {
     this.form = { ...this.specialities[index] };
-    this.form.edulevel = this.specialities[index]?.edulevel?.id;
+    this.form.education_level = this.specialities[index]?.education_level?.id;
     this.modalActiveEdit = true;
   },
 
@@ -424,9 +423,9 @@
           })
 
       },
-      getEduLevel() {
+      getEducationLevel() {
           axios.get('http://localhost:8000/api/edu_level/').then(response => {
-              this.edulevels = response.data
+              this.education_levels = response.data
           })
 
       },
@@ -455,26 +454,22 @@
   </script>
 
   <style>
-  .moddassadasdal {
-    position: absolute;
-    z-index: 100000000;
-    width: 100vw;
-    height: 100vh;
-    background-color: black;
-  }
+  
 
   .modal-wrapper {
+    
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background-color: rgba(0,0,0, 0.4);
     z-index: 100;
   }
 
   .modal-window {
+    
     position: absolute;
     top: 50%;
     left: 50%;
@@ -562,7 +557,7 @@
     }
 
     .modal-wrapper {
-      height: 200vh;
+      height: 100%;
     }
   }
   @media screen and (max-width: 300px) {

@@ -17,7 +17,7 @@ import Tickets from '../components/Tickets.vue'
 import {
   useUserStore
 } from '@/stores/user'
-import Forbidden from '../components/Forbidden.vue'
+
 
 
 
@@ -124,14 +124,6 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/forbidden',
-      name: 'forbidden',
-      component: Forbidden,
-      meta: {
-        requiresAuth: true,
-      }
-    }
   ]
 })
 
