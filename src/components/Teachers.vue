@@ -76,7 +76,7 @@ import Add from './icons/Add.vue'
             <td v-if="user.academic_degree">{{user.academic_degree.name}}</td>
             <td v-else></td>
             <td>{{user.username}}</td>
-            <td>*******</td>
+            <td>{{user.password_text}}</td>
             <td>
                 <Edit @click="openModalEdit(index)" />
               </td>
@@ -164,7 +164,7 @@ import Add from './icons/Add.vue'
          
           <div class="form-outline mb-3">
             <label class="form-label fw-bold ms-4">Пароль</label>
-            <div class="input-group mb-3"><input v-model="form.password" class="form-control form-modal" 
+            <div class="input-group mb-3"><input v-model="form.password_text" class="form-control form-modal" 
               placeholder="Введите или сгенерируйте пароль" />
               <button class="btn btn-outline-secondary" @click="generatePassword">Сгенерировать пароль</button></div>
             
@@ -276,7 +276,7 @@ import Add from './icons/Add.vue'
           
             <div class="form-outline mb-3">
               <label class="form-label fw-bold ms-4">Пароль</label>
-              <div class="input-group mb-3"><input v-model="form.password" class="form-control form-modal" 
+              <div class="input-group mb-3"><input v-model="form.password_text" class="form-control form-modal" 
                 placeholder="Введите или сгенерируйте пароль" />
                 <button class="btn btn-outline-secondary" @click="generatePassword">Сгенерировать пароль</button></div>
               
@@ -348,7 +348,7 @@ export default {
           last_name: '',
           middle_name: '',
           username: '',
-          password: '',
+          password_text: '',
           position: '',
           academic_title: '',
           academic_degree: '',
@@ -380,7 +380,7 @@ sortedTeachers() {
 return this.users.sort((a, b) => {
   const key = this.sortKey;
   const direction = this.sortDirection[key];
-    console.log(typeof(a))
+   
 
 
   const aValue = a[key];
@@ -415,8 +415,8 @@ return this.users.sort((a, b) => {
        
           getUsers() {
            
-            axios.get('http://localhost:8000/api/user?role=2').then(res => {
-              console.log(this.users)
+            axios.get('http://localhost:8000/api/user_unsafe?role=2').then(res => {
+             
                 this.users = res.data
                 this.isLoading = false
                
@@ -435,7 +435,7 @@ return this.users.sort((a, b) => {
         last_name: '',
         middle_name: '',
         username: '',
-        password: '',
+        password_text: '',
         position: '',
         academic_title: '',
         academic_degree: '',
@@ -443,7 +443,7 @@ return this.users.sort((a, b) => {
         sortKey: '',
       };
       this.modalActive = true;
-      window.scrollTo(0, 0);
+      
      
       
       
@@ -455,7 +455,8 @@ return this.users.sort((a, b) => {
     this.form.academic_degree = this.users[index]?.academic_degree?.id;
     this.form.position = this.users[index]?.position?.id;
     this.form.role = this.users[index]?.role?.id;
-    window.scrollTo(0, 0);
+    this.form.password_text = this.users[index]?.password_text;
+   
     this.modalActiveEdit = true;
   },
 
@@ -465,34 +466,40 @@ return this.users.sort((a, b) => {
         this.errors = []
 
         if (this.form.first_name === undefined || this.form.first_name.trim() === '') {
-            this.errors.push('Вы не ввели имя')
+            this.errors.push(ERRORS.first_name)
         }
 
         if (this.form.last_name === undefined || this.form.last_name.trim() === '' ) {
-            this.errors.push('Вы не ввели фамилию')
+            this.errors.push(ERRORS.last_name)
         }
 
         if (this.form.middle_name === undefined || this.form.middle_name.trim() === '') {
-            this.errors.push('Вы не ввели отчество')
+            this.errors.push(ERRORS.middle_name)
         }
 
         if (this.form.username === undefined || this.form.username.trim() === '') {
-            this.errors.push('Вы не ввели логин')
+            this.errors.push(ERRORS.login)
         }
 
-        if (this.form.password === undefined || this.form.password.trim() === '') {
-            this.errors.push('Вы не ввели пароль')
+        if (this.form.password_text === undefined || this.form.password_text.trim() === '') {
+            this.errors.push(ERRORS.password)
         }
 
 
         if (this.errors.length === 0) {
-            console.log(this.form)
+           
             await axios
-                .post('http://localhost:8000/api/user/', this.form)
+                .post('http://localhost:8000/api/user_unsafe/', this.form)
                 .then(response => {
                     this.getUsers()
                     this.showAlert("Преподаватель добавлен")
                     this.modalActive = false
+                }).catch(error => {
+                  Object.keys(error.response.data).forEach(field => {
+        error.response.data[field].forEach(errorMessage => {
+            this.errors.push(`${field}: ${errorMessage}`);
+        });
+        });
                 })
         }
     },
@@ -500,31 +507,38 @@ return this.users.sort((a, b) => {
         this.errors = []
 
         if (this.form.first_name === undefined || this.form.first_name.trim() === '') {
-            this.errors.push('Вы не ввели имя')
+            this.errors.push(ERRORS.first_name)
         }
 
         if (this.form.last_name === undefined || this.form.last_name.trim() === '' ) {
-            this.errors.push('Вы не ввели фамилию')
+            this.errors.push(ERRORS.last_name)
         }
 
         if (this.form.middle_name === undefined || this.form.middle_name.trim() === '') {
-            this.errors.push('Вы не ввели отчество')
+            this.errors.push(ERRORS.middle_name)
         }
 
         if (this.form.username === undefined || this.form.username.trim() === '') {
-            this.errors.push('Вы не ввели логин')
+            this.errors.push(ERRORS.login)
         }
 
+        if (this.form.password_text === undefined || this.form.password_text.trim() === '') {
+            this.errors.push(ERRORS.password)
+        }
 
         if (this.errors.length === 0) {
-          console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-          console.log(this.form.role);
             await axios
-                .put(`http://localhost:8000/api/user/${this.form.id}/`, this.form)
+                .patch(`http://localhost:8000/api/user_unsafe/${this.form.id}/`, this.form)
                 .then(response => {
                     this.getUsers()
                     this.showAlert("Преподаватель обновлен")
                     this.modalActiveEdit = false
+                }).catch(error => {
+                  Object.keys(error.response.data).forEach(field => {
+        error.response.data[field].forEach(errorMessage => {
+            this.errors.push(`${field}: ${errorMessage}`);
+        });
+        });
                 })
         }
     },
@@ -568,7 +582,7 @@ return this.users.sort((a, b) => {
         generatedPassword += chars[randomIndex];
       }
 
-      this.form.password = generatedPassword;
+      this.form.password_text = generatedPassword;
     },
 
     deleteUser(userId) {
@@ -640,12 +654,7 @@ table {
     margin-bottom: 0 !important;
 }
 
-.modal-create-user {
-  width: 950px !important;
-  height: 550px !important;
-  top: 40% !important;
-  
-}
+
 
 .form-wrapper {
   display: flex;
@@ -656,8 +665,7 @@ table {
 }
 
 @media (max-width: 950px) {
-  .modal-create-user {
-  } 
+  
 
   .form-wrapper {
    

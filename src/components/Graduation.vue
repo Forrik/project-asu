@@ -287,8 +287,14 @@ async updateGraduation() {
           .put(`http://localhost:8000/api/graduation/${this.form.id}/`, this.form)
           .then(response => {
               this.getGraduation()
-              alert("Тип выпуска обновлен")
+              this.showAlert("Тип выпуска обновлен")
               this.modalActiveEdit = false
+          }).catch(error => {
+            Object.keys(error.response.data).forEach(field => {
+        error.response.data[field].forEach(errorMessage => {
+            this.errors.push(`${field}: ${errorMessage}`);
+        });
+    });
           })
   }
 },
@@ -309,8 +315,14 @@ async submitForm() {
           .post('http://localhost:8000/api/graduation/', this.form)
           .then(response => {
               this.getGraduation()
-              alert("Тип выпуска добавлен")
+                this.showAlert("Тип выпуска добавлен")
               this.modalActive = false
+          }).catch(error => {
+            Object.keys(error.response.data).forEach(field => {
+        error.response.data[field].forEach(errorMessage => {
+            this.errors.push(`${field}: ${errorMessage}`);
+        });
+    });
           })
   }
 },

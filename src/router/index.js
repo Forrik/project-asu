@@ -57,7 +57,7 @@ const router = createRouter({
       component: Login
     },
     {
-      path: '/profile/',
+      path: '/profile',
       name: 'profile',
       component: Profile,
       meta: {
@@ -156,21 +156,5 @@ router.beforeEach((to, from, next) => {
     next()
   }
 })
-
-// router.beforeEach((to, from, next) => {
-//   const isAuthenticated = useUserStore().user.isAuthenticated
-
-//   if (to.name !== 'login' && !isAuthenticated) {
-//     next({
-//       name: 'login'
-//     })
-//   } else if (to.name === 'login' && isAuthenticated) {
-//     next({
-//       name: 'main'
-//     })
-//   } else {
-//     next()
-//   }
-// })
 
 export default router

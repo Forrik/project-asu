@@ -9,6 +9,8 @@ import Add from './icons/Add.vue'
 <template>
     <div>
         <div class="row">
+          <CustomAlert ref="alertComponent" />
+          <CustomConfirm ref="confirmComponent" />
             <div class="col-3"></div>
             <div class="col-8 content">
                 <div>
@@ -145,7 +147,7 @@ import Add from './icons/Add.vue'
                                       <tbody v-for="(time_norm, index) in time_norms" :key="index">
                                         <tr>
                                           <td >{{time_norm.id}}</td>
-                                          <td >{{time_norm.speciality.code}} {{time_norm.speciality.name}}  </td>
+                                          <td>{{ time_norm.speciality ? time_norm.speciality.code : "" }} {{ time_norm.speciality ? time_norm.speciality.name : "" }}</td>
                                           <td>{{time_norm.consultancy_type.name}}</td>
                                           <td >{{time_norm.hours}}</td>
                                           <td><Edit /></td> 
@@ -250,6 +252,12 @@ import Add from './icons/Add.vue'
                 <input v-model="form.hours" class="form-control form-modal" placeholder="Введите количество часов" />
               </div>
 
+              <template v-if="errors.length > 0">
+                <div class="alert alert-danger mt-3" >
+                    <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
+                </div>
+            </template>
+
                 <div class="btn-modal-wrapper">
                   <button @click="addHours" class="btn-modal">Добавить</button>
                 </div>
@@ -276,6 +284,8 @@ import Add from './icons/Add.vue'
 <script >
 import axios from 'axios';
 import GroupItem from './GroupItem.vue';
+import CustomAlert from './CustomAlert.vue'
+import CustomConfirm from './CustomConfirm.vue'
 
 export default {
     name: 'GraduationItem',
@@ -331,6 +341,8 @@ export default {
     },
     components: {
       GroupItem,
+      CustomAlert,
+      CustomConfirm,
     }
 
 
@@ -338,58 +350,84 @@ export default {
 
         methods: {
 
+          confirmAction(message) {
+      this.$refs.confirmComponent.show(message)
+        .then((confirmed) => {
+          if (confirmed) {
+            // Выполняем действие
+            console.log('Действие выполнено!');
+          } else {
+            console.log('Действие отменено!');
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+    
+    showAlert(message) {
+      this.$refs.alertComponent.show(message);
+    },
+
           async addTimeNorm() {
   this.errors = [];
 
-  if (this.form.speciality === undefined ) {
+  if (this.form.speciality === undefined || this.form.speciality === "") {
     this.errors.push('Вы не ввели специальность');
   }
 
-  if (this.form.consultancy_type === undefined  ) {
+  if (this.form.consultancy_type === undefined || this.form.consultancy_type === "") {
     this.errors.push('Вы не ввели вид консультации');
   }
 
-  if (this.form.hours === undefined) {
+  if (this.form.hours === undefined || this.form.hours.trim() === "") {
     this.errors.push('Вы не ввели количество часов');
   }
 
+  this.form.graduation = this.graduationId;
   if (this.errors.length === 0) {
     await axios
-      .post(`http://localhost:8000/api/time_norm/`, {
-        speciality: this.form.speciality,
-        consultancy_type: this.form.consultancy_type,
-        hours: this.form.hours,
-        graduation: this.graduationId,
-      })
+      .post(`http://localhost:8000/api/time_norm/`, this.form)
       .then(response => {
         this.openModalTimeNorm = false;
-        this.errors = []; // Сброс ошибок
-      });
+        this.showAlert("Норма времени добавлена")
+      }).catch(error => {
+        Object.keys(error.response.data).forEach(field => {
+          error.response.data[field].forEach(errorMessage => {
+              this.errors.push(`${field}: ${errorMessage}`);
+          })
+        })
+      })
   }
 },
           async addHours() {
+  
   this.errors = [];
 
-  if (this.form.teacher === undefined ) {
-    this.errors.push('Вы не ввели специальность');
+  if (this.form.teacher === undefined || this.form.teacher === "") {
+    this.errors.push(ERRORS.teacher);
   }
 
-  if (this.form.hours === undefined  ) {
-    this.errors.push('Вы не ввели вид консультации');
+  if (this.form.hours === undefined || this.form.hours.trim() === "") {
+    this.errors.push(ERRORS.hours);
   }
+  console.log(this.form.hours)
+  console.log(this.form.teacher)
+  this.form.year = this.graduations.year;
 
   if (this.errors.length === 0) {
-    await axios
-      .post(`http://localhost:8000/api/vkr_hours/`, {
-       
-        teacher: this.form.teacher,
-        hours: this.form.hours,
-        year: this.graduations.year,
+  
+    await axios.post(`http://localhost:8000/api/vkr_hours/`, this.form)
+    .then(response => {
+      this.openModalCreateHours = false;
+      this.showAlert("Часы преподавателя добавлены")
+    }).catch(error => {
+      Object.keys(error.response.data).forEach(field => {
+        error.response.data[field].forEach(errorMessage => {
+            this.errors.push(`${field}: ${errorMessage}`);
+        })
       })
-      .then(response => {
-        this.openModalCreateHours = false;
-        this.errors = []; // Сброс ошибок
-      });
+    })
   }
 },
     
@@ -403,6 +441,7 @@ handleNextClick(group) {
     this.showGroupItem = !this.showGroupItem;
     this.showTable = !this.showTable;
   },
+
           getTeachers() {
           
             axios.get('http://localhost:8000/api/user?role=2').then(res => {

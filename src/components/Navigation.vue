@@ -1,177 +1,152 @@
-<script setup>  
-import TeacherIcon from './icons/TeacherIcon.vue';
-import SpecialtiesIcon from './icons/SpecialtiesIcon.vue';
-import UUSATIcon from './icons/UUSATIcon.vue';
+<script setup>
+import TeacherIcon from "./icons/TeacherIcon.vue";
+import SpecialtiesIcon from "./icons/SpecialtiesIcon.vue";
+import UUSATIcon from "./icons/UUSATIcon.vue";
 </script>
 
 <script>
-  import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView } from "vue-router";
 
-  export default {
-    name: 'Navigation',
-   
-  data(){
-    return {
-     
-    }
-    
+export default {
+  name: "Navigation",
+
+  data() {
+    return {};
   },
-    mounted() {
-        // add hovered class to selected list item
-        const body = document.querySelector("body"),
-        sidebar = body.querySelector("nav"),
-        toggle = body.querySelector(".toggle"),
-        searchBtn = body.querySelector(".search-box"),
-        modeSwitch = body.querySelector(".toggle-switch"),
-        modeText = body.querySelector(".mode-text");
-      toggle.addEventListener("click", () => {
-        sidebar.classList.toggle("close");
-        
-      });
-  
-      modeSwitch.addEventListener("click", () => {
-        body.classList.toggle("dark");
-     
-        
-        
-      
+  mounted() {
+    // add hovered class to selected list item
+    const body = document.querySelector("body"),
+      sidebar = body.querySelector("nav"),
+      toggle = body.querySelector(".toggle"),
+      searchBtn = body.querySelector(".search-box"),
+      modeSwitch = body.querySelector(".toggle-switch"),
+      modeText = body.querySelector(".mode-text");
+    toggle.addEventListener("click", () => {
+      sidebar.classList.toggle("close");
+    });
 
-        if (body.classList.contains("dark")) {
-          modeText.innerText = "Light mode";
-        } else {
-          modeText.innerText = "Dark mode";
-          
-        }
-      });
+    modeSwitch.addEventListener("click", () => {
+      body.classList.toggle("dark");
 
-      (function() {
+      if (body.classList.contains("dark")) {
+        modeText.innerText = "Light mode";
+      } else {
+        modeText.innerText = "Dark mode";
+      }
+    });
 
-matchMedia('only screen and (min-width:980px)').addEventListener('change', () => sidebar.classList.toggle("close"))
-})();
-      
-    },
-  
-    methods: {
-        
-        
-  
-    },
-  
-    }
-  </script>
+    (function () {
+      matchMedia("only screen and (min-width:980px)").addEventListener("change", () =>
+        sidebar.classList.toggle("close")
+      );
+    })();
+  },
+
+  methods: {},
+};
+</script>
 
 <template>
-   
-    <nav class="sidebar ">
-        <header>
-          <div class="image-text">
-            <RouterLink to="/">
-            <span class="image">
-              <UUSATIcon />
-            </span>
-          </RouterLink>
-            <div class="text logo-text">
-              <span class="name">УУНИТ</span>
-              <span class="profession">Web приложение</span>
-            </div>
-          </div>
-          <i class="bx bx-chevron-right toggle"> </i>
-        </header>
-        <div class="menu-bar">
-          <div class="menu">
-          
-            <ul class="menu-links">
-                <RouterLink to="/teachers">
-              <li class="nav-link">
-                <a href="#">
-                    <i class="icon"><TeacherIcon /></i>
-                  
-                  <span class="text nav-text">Преподаватели</span>
-                </a>
-              </li>
-              </RouterLink>
-              <RouterLink to="/specialties">
-              <li class="nav-link">
-                <a href="#">
-                  <i class="icon"><SpecialtiesIcon /></i>
-                  <span class="text nav-text">Специальности</span>
-                </a>
-              </li>
-            </RouterLink>
-       
-              <li class="nav-link">
-                <a href="#">
-                  <i class="bx bx-bell icon"></i>
-                  <span class="text nav-text">Notifications</span>
-                </a>
-              </li>
-              <li class="nav-link">
-                <a href="#">
-                  <i class="bx bx-pie-chart-alt icon"></i>
-                  <span class="text nav-text">Analytics</span>
-                </a>
-              </li>
-              <li class="nav-link">
-                <a href="#">
-                  <i class="bx bx-heart icon"></i>
-                  <span class="text nav-text">Likes</span>
-                </a>
-              </li>
-              <li class="nav-link">
-                <a href="#">
-                  <i class="bx bx-wallet icon"></i>
-                  <span class="text nav-text">Wallets</span>
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div class="bottom-content">
-            <li class="">
+  <nav class="sidebar">
+    <header>
+      <div class="image-text">
+        <RouterLink to="/">
+          <span class="image">
+            <UUSATIcon />
+          </span>
+        </RouterLink>
+        <div class="text logo-text">
+          <span class="name">УУНИТ</span>
+          <span class="profession">Web приложение</span>
+        </div>
+      </div>
+      <i class="bx bx-chevron-right toggle"> </i>
+    </header>
+    <div class="menu-bar">
+      <div class="menu">
+        <ul class="menu-links">
+          <RouterLink to="/teachers">
+            <li class="nav-link">
               <a href="#">
-                <i class="bx bx-log-out icon"></i>
-                <span class="text nav-text">Logout</span>
+                <i class="icon"><TeacherIcon /></i>
+
+                <span class="text nav-text">Преподаватели</span>
               </a>
             </li>
-            <li class="mode">
-              <div class="sun-moon">
-                <i class="bx bx-moon icon moon"></i>
-                <i class="bx bx-sun icon sun"></i>
-              </div>
-              <span class="mode-text text">Dark mode</span>
-              <div class="toggle-switch">
-                <span class="switch"></span>
-              </div>
+          </RouterLink>
+          <RouterLink to="/specialties">
+            <li class="nav-link">
+              <a href="#">
+                <i class="icon"><SpecialtiesIcon /></i>
+                <span class="text nav-text">Специальности</span>
+              </a>
             </li>
+          </RouterLink>
+
+          <li class="nav-link">
+            <a href="#">
+              <i class="bx bx-bell icon"></i>
+              <span class="text nav-text">Notifications</span>
+            </a>
+          </li>
+          <li class="nav-link">
+            <a href="#">
+              <i class="bx bx-pie-chart-alt icon"></i>
+              <span class="text nav-text">Analytics</span>
+            </a>
+          </li>
+          <li class="nav-link">
+            <a href="#">
+              <i class="bx bx-heart icon"></i>
+              <span class="text nav-text">Likes</span>
+            </a>
+          </li>
+          <li class="nav-link">
+            <a href="#">
+              <i class="bx bx-wallet icon"></i>
+              <span class="text nav-text">Wallets</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="bottom-content">
+        <li class="">
+          <a href="#">
+            <i class="bx bx-log-out icon"></i>
+            <span class="text nav-text">Logout</span>
+          </a>
+        </li>
+        <li class="mode">
+          <div class="sun-moon">
+            <i class="bx bx-moon icon moon"></i>
+            <i class="bx bx-sun icon sun"></i>
           </div>
-        </div>
-      </nav>
-      
-  
-      <!-- <section class="home">
+          <span class="mode-text text">Dark mode</span>
+          <div class="toggle-switch">
+            <span class="switch"></span>
+          </div>
+        </li>
+      </div>
+    </div>
+  </nav>
+
+  <!-- <section class="home">
         <div class="text">
         </div>
        
       </section> -->
+</template>
 
-    
-  </template>
-  
-  
-  
-  
-  
-  <style >
- /* Google Font Import - Poppins */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+<style>
+/* Google Font Import - Poppins */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
 }
-
-
 
 body {
   min-height: 100vh;
@@ -260,9 +235,8 @@ body.dark {
 .sidebar header .image-text {
   display: flex;
   align-items: center;
-  border-bottom: 2px solid #695CFE;
+  border-bottom: 2px solid #695cfe;
   padding-bottom: 26px;
-  
 }
 
 .sidebar header .logo-text {
@@ -294,7 +268,7 @@ header .image-text .profession {
 }
 
 .sidebar .nav-text {
-    font-weight: 600;
+  font-weight: 600;
 }
 
 .sidebar header .toggle {
@@ -440,7 +414,7 @@ body.dark .mode .sun-moon i.moon {
 }
 
 .switch::before {
-  content: '';
+  content: "";
   position: absolute;
   height: 15px;
   width: 15px;
@@ -474,7 +448,7 @@ body.dark .switch::before {
   padding: 12px 60px;
 }
 
-.sidebar.close~.home {
+.sidebar.close ~ .home {
   left: 78px;
   height: 100vh;
   width: calc(100% - 78px);
@@ -483,5 +457,4 @@ body.dark .switch::before {
 body.dark .home .text {
   color: var(--text-color);
 }
-  
-  </style>
+</style>

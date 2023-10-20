@@ -319,9 +319,41 @@ import Add from "./icons/Add.vue";
             </tr>
           </thead>
 
-          <tbody>
+          <tbody v-for="(consultation, index) in consultations">
+            <tr v-for="(relation, sIndex) in consultation.assigned" :key="sIndex">
+              <td>
+                {{ relation.student.last_name }} {{ relation.student.first_name }} {{ relation.student.middle_name }}
+              </td>
+              <td>
+                {{ relation.teacher.last_name }} {{ relation.teacher.first_name }} {{ relation.teacher.middle_name }}
+              </td>
+              <td>{{ consultation.hours }}</td>
+              <td>{{ relation.comment ? relation.comment : "" }}</td>
+              <td>{{ relation.student.student_status ? relation.student.student_status.name : "" }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        Нераспределенные:
+        <table v-if="counter === `management`" class="table table-bordered table-hover">
+          <thead>
             <tr>
-              <td>123</td>
+              <th scope="col">Студент№</th>
+              <th scope="col">Преподаватель</th>
+              <th scope="col">Норма времени</th>
+              <th scope="col">Комметарий</th>
+              <th scope="col">Статус</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+
+          <tbody v-for="(consultation, index) in consultations">
+            <tr v-for="(relation, sIndex) in consultation.not_assigned" :key="sIndex">
+              <td>{{ relation.last_name }} {{ relation.first_name }} {{ relation.middle_name }}</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td>{{ relation.student_status ? relation.student_status.name : "" }}</td>
             </tr>
           </tbody>
         </table>
@@ -439,6 +471,7 @@ export default {
     this.getStudents();
     this.getEducationBase();
     this.getStudentStatus();
+    this.getConsultations();
   },
   components: {
     CustomAlert,
@@ -492,6 +525,15 @@ export default {
       axios.get(`http://localhost:8000/api/stud_status/`).then((response) => {
         this.student_statuses = response.data;
       });
+    },
+
+    getConsultations() {
+      axios.get(`${API_URL}students_by_consultancy/${this.groupId}`).then((response) => {
+        this.consultations = response.data;
+      });
+    },
+    setActive(index) {
+      this.activeIndex = index;
     },
     deleteStudent(StudentId) {
       this.$refs.confirmComponent

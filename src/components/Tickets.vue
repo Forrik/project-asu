@@ -217,10 +217,12 @@ export default {
         });
     },
     acceptTicket(ticketId) {
-      this.$refs.confirmComponent.show("Вы действительно хотите принять эту заявку?").then((confirmed) => {
+      this.$refs.confirmComponent.show("Вы действительно хотите принять эту заявку?").then((confirmed) => {
         if (confirmed) {
           axios.post(`http://localhost:8000/api/ticket_status_update/${ticketId}`, { ticket_status: 2 });
-          location.reload();
+          setTimeout(() => {
+            location.reload();
+          }, 500);
           this.getAcceptedTickets();
         }
       });
@@ -229,8 +231,10 @@ export default {
       this.$refs.confirmComponent.show("Вы действительно хотите отклонить эту заявку?").then((confirmed) => {
         if (confirmed) {
           axios.post(`http://localhost:8000/api/ticket_status_update/${ticketId}`, { ticket_status: 3 });
-          location.reload();
-          this.getRejectedTickets();
+          setTimeout(() => {
+            location.reload();
+          }, 500);
+          this.getAcceptedTickets();
         }
       });
     },

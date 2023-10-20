@@ -16,6 +16,7 @@
           <div class="col-8 content">
            
               <CustomAlert ref="alertComponent" />
+              <CustomConfirm ref="confirmComponent" />
           
           <div class="card">
          
@@ -93,78 +94,12 @@
             </div>
           </div>
 
-          <div v-show="modalActiveEdit">
-            <div   @click="modalActiveEdit = false;this.errors=''" class="modal-wrapper" >   </div>
-            <div  class="modal-window">
-                <h4 class="modal-title py-3 fw-bold">Редактировать</h4>
-                <svg
-                @click="modalActiveEdit = false;this.errors=''"
-                class="icon-close"
-                xmlns="http://www.w3.org/2000/svg"
-                height="35"
-                viewBox="0 0 16 16"
-                width="35"
-              >
-                <polygon
-                  fill-rule="evenodd"
-                  points="8 9.414 3.707 13.707 2.293 12.293 6.586 8 2.293 3.707 3.707 2.293 8 6.586 12.293 2.293 13.707 3.707 9.414 8 13.707 12.293 12.293 13.707 8 9.414"
-                />
-              </svg>
-              <form v-on:submit.prevent="updateSpeciality">
-                <div class="form-outline mb-3">
-                  <label class="form-label fw-bold ms-4">Код</label>
-                  
-                  <input v-model="form.code" class="form-control form-modal" placeholder="Введите код специальности" v-mask="'##.##.##'" />
-                </div>
-                <div class="form-outline mb-3">
-                  <label class="form-label fw-bold ms-4" >Наименование</label>
-                  <input v-model="form.name" class="form-control form-modal" 
-                    placeholder="Введите наименование "  minlength="6" maxlength="100" />
-                </div>
-                <div class="form-outline mb-3">
-                  <label class="form-label fw-bold ms-4" >Аббревиатура</label>
-                  <input v-model="form.abbreviation" class="form-control form-modal" 
-                    placeholder="Введите аббревиатуру " minlength="2" maxlength="10" />
-                </div>
-                <label class="form-label fw-bold ms-4" >Уровень образования</label>
-
-                <select v-model="form.education_level"  class="form-select form-modal">
-                  <option v-for="education_level in education_levels" v-bind:value="education_level.id" :key="education_level.id" :value="education_level.id">
-                    {{ education_level.name }}
-                  </option>
-
-                </select>
-
-                <template v-if="errors.length > 0">
-                  <div class="alert alert-danger mt-3" >
-                      <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
-                  </div>
-              </template>
-
-            
-                  <div class="btn-modal-wrapper">
-                    <button class="btn-modal">Обновить</button>
-                  </div>
-
-                  
-
-                </form>
-                
-            
-            </div>
-            </div>
-
-            <div>
-
-                <CustomConfirm ref="confirmComponent" />
-
-            </div>
-
+         
 
             <div v-show="modalActive" >
-              <div  @click="modalActive = false; this.errors=''" class="modal-wrapper" >   </div>
+              <div @click="closeModal" class="modal-wrapper"></div>
               <div  class="modal-window">
-                  <h4 class="modal-title py-3 fw-bold">Добавить</h4>
+                <h4 class="modal-title py-3 fw-bold">{{ editing ? "Редактировать" : "Добавить" }}</h4>
                   <svg
                   @click="modalActive = false; this.errors=''"
                   class="icon-close"
@@ -179,7 +114,7 @@
                     points="8 9.414 3.707 13.707 2.293 12.293 6.586 8 2.293 3.707 3.707 2.293 8 6.586 12.293 2.293 13.707 3.707 9.414 8 13.707 12.293 12.293 13.707 8 9.414"
                   />
                 </svg>
-                <form  v-on:submit.prevent="submitForm">
+                <form  @submit.prevent="editing ? updateSpeciality() : submitForm()">
                   <div class="form-outline mb-3">
                     <label class="form-label fw-bold ms-4">Код</label>
                     
@@ -216,7 +151,7 @@
     
               
                     <div class="btn-modal-wrapper">
-                      <button class="btn-modal">Добавить</button>
+                      <button class="btn-modal">{{ editing ? "Обновить" : "Добавить" }}</button>
                     </div>
     
                     
@@ -270,7 +205,8 @@
           errors: [],
           specialities: [],
           education_levels: [],
-          sortKey: ''
+          sortKey: '',
+          editing: false,
         }
       },
 
@@ -333,76 +269,108 @@
           this.errors = []
           
           if (this.form.code === '' ) {
-              this.errors.push('Вы не ввели код')
+              this.errors.push(ERRORS.code)
           }
 
           if (this.form.name === '') {
-              this.errors.push('Вы не ввели наименование')
+              this.errors.push(ERRORS.name)
           }
 
           if (this.form.abbreviation === '') {
-              this.errors.push('Вы не ввели аббревиатуру')
+              this.errors.push(ERRORS.abbreviation)
+          }
+
+          if (this.form.education_level === undefined) {
+              this.errors.push(ERRORS.education_level)
           }
 
           if (this.errors.length === 0) {
               await axios
-                  .put(`http://localhost:8000/api/speciality/${this.form.id}/`, this.form)
+                  .put(`${API_URL}speciality/${this.form.id}/`, this.form)
                   .then(response => {
                       this.getSpecialities()
                       this.showAlert("Специальность обновлена")
                       this.modalActiveEdit = false
+                    }).catch(error => {
+    Object.keys(error.response.data).forEach(field => {
+        error.response.data[field].forEach(errorMessage => {
+            this.errors.push(`${field}: ${errorMessage}`);
+        });
+       
+    });
                   })
           }
-        },
+      },
 
         async submitForm() {
           this.errors = []
 
-          if (this.form.code === undefined) {
-              this.errors.push('Вы не ввели код')
+          if (this.form.code === undefined || this.form.code.trim() === '') {
+              this.errors.push(ERRORS.code)
           }
 
           if (this.form.name === undefined || this.form.name.trim() === '') {
-              this.errors.push('Вы не ввели наименование')
+              this.errors.push(ERRORS.name)
           }
 
           if (this.form.abbreviation === undefined || this.form.abbreviation.trim() === '') {
-              this.errors.push('Вы не ввели аббревиатуру')
+              this.errors.push(ERRORS.abbreviation)
           }
 
           if (this.form.education_level === undefined) {
-              this.errors.push('Вы не ввели уровень образования')
+              this.errors.push(ERRORS.education_level)
           }
 
           if (this.errors.length === 0) {
               await axios
-                  .post('http://localhost:8000/api/speciality/', this.form)
+                  .post(`${API_URL}speciality/`, this.form)
                   .then(response => {
                       this.getSpecialities()
                       this.modalActive = false
                       this.showAlert("Специальность добавлена")
-                    
+                  }).catch(error => {
+    Object.keys(error.response.data).forEach(field => {
+        error.response.data[field].forEach(errorMessage => {
+            this.errors.push(`${field}: ${errorMessage}`);
+        });
+       
+    });
                   })
           }
       },
 
         
 
+  //       openModalEdit(index) {
+  //   this.form = { ...this.specialities[index] };
+  //   this.form.education_level = this.specialities[index]?.education_level?.id;
+  //   this.modalActiveEdit = true;
+  // },
+
+
+  //       openModal(index) {
+  //         this.form = { ...this.specialities[index] };
+  //         this.modalActive = true;
+  //       },
+
         openModalEdit(index) {
-    this.form = { ...this.specialities[index] };
-    this.form.education_level = this.specialities[index]?.education_level?.id;
-    this.modalActiveEdit = true;
-  },
+      this.form = { ...this.specialities[index] };
+      this.form.education_level = this.specialities[index]?.education_level?.id;
+      this.editing = true; // Указываем, что выполняется редактирование
+      this.modalActive = true;
+    },
 
-        // openModalEdit(specialityId) {
-        //   this.form = { ...this.specialities.find(speciality => speciality.id === specialityId) };
-        //   this.modalActiveEdit = true;
+    openModal(index) {
+      this.form = { ...this.specialities[index] };
+      this.modalActive = true;
+    },
 
-        // },
-        openModal(index) {
-          this.form = { ...this.specialities[index] };
-          this.modalActive = true;
-        },
+    closeModal() {
+      this.modalActive = false;
+      this.editing = false; // Сбрасываем флаг редактирования
+      this.errors = [];
+    },
+  
 
         sortBy(key) {
           if (this.sortKey === key) {
@@ -416,7 +384,7 @@
 
       getSpecialities() {
   
-          axios.get('http://localhost:8000/api/speciality').then(response => {
+          axios.get(`${API_URL}speciality/`).then(response => {
               this.specialities = response.data
               this.isLoading = false
               
@@ -424,7 +392,7 @@
 
       },
       getEducationLevel() {
-          axios.get('http://localhost:8000/api/edu_level/').then(response => {
+          axios.get(`${API_URL}edu_level/`).then(response => {
               this.education_levels = response.data
           })
 
@@ -436,7 +404,7 @@
     this.$refs.confirmComponent.show("Вы уверены что хотите удалить эту специальность?")
       .then((confirmed) => {
         if (confirmed) {
-          axios.delete(`http://localhost:8000/api/speciality/${specialityId}`)
+          axios.delete(`${API_URL}speciality/${specialityId}`)
             .then(res => {
               this.showAlert("Специальность удалена")
               this.getSpecialities()
@@ -457,28 +425,32 @@
   
 
   .modal-wrapper {
-    
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0, 0.4);
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
     z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-
+  
   .modal-window {
-    
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 500px;
-    height: 700px;
+    max-width: 1200px;
+    max-height: 90vh;
     background-color: #fff;
     z-index: 101;
     border-radius: 12px;
+    overflow-y: auto;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* Добавьте следующие две строки для центрирования */
+    margin: auto;
+    position: fixed;
   }
 
   .table-search {
@@ -500,13 +472,13 @@
 
   .form-modal {
     width: 450px; 
-    margin: 0 auto;
+    margin: 0 30px;
   }
 
   .btn-modal-wrapper {
     display: flex;
     justify-content: center;
-
+    margin-bottom: 35px;
   }
 
   .btn-modal {
