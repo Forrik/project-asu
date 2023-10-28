@@ -7,12 +7,13 @@ import Next from './icons/Next.vue'
 
 <template>
     <div class="row">
+      <CustomConfirm ref="confirmComponent" />
+      <CustomAlert ref="alertComponent" />
         <div class="col-3"></div>
         <div class="col-8 content">
            
             <div class="card">
                 <div class="table-responsive">
-                  <!-- <input class="table-search" type="text" v-model="searchQuery" placeholder="Поиск" /> -->
                   <div v-if="isLoading" >
                     <p class="text-center mt-5 mb-2"><h4>Подождите...</h4></p>
                     <span class="loader"></span>
@@ -74,6 +75,13 @@ import Next from './icons/Next.vue'
                     </td>
                       </tr>
                     </tbody>
+                    <tbody v-if="sortedGraduations.length === 0"> 
+                      <tr>
+                        <td colspan="7" class="text-center fw-bold">
+                          Пока нет ни одного выпуска
+                        </td>
+                      </tr>
+                    </tbody>
                   </table>
                   <div class="icon-add">
                   
@@ -81,8 +89,7 @@ import Next from './icons/Next.vue'
                     </div>
                 </div>
               </div>
-              <CustomConfirm ref="confirmComponent" />
-              <CustomAlert ref="alertComponent" />
+             
               
               <div v-show="modalActiveEdit">
                 <div   @click="modalActiveEdit = false; this.errors=''" class="modal-wrapper" >   </div>
@@ -254,7 +261,7 @@ export default {
   return this.graduations.sort((a, b) => {
     const key = this.sortKey;
     const direction = this.sortDirection[key];
-      console.log(typeof(a))
+   
 
 
     const aValue = a[key];
@@ -284,7 +291,7 @@ async updateGraduation() {
 
   if (this.errors.length === 0) {
       await axios
-          .put(`http://localhost:8000/api/graduation/${this.form.id}/`, this.form)
+          .put(`${API_URL}graduation/${this.form.id}/`, this.form)
           .then(response => {
               this.getGraduation()
               this.showAlert("Тип выпуска обновлен")
@@ -312,7 +319,7 @@ async submitForm() {
 
   if (this.errors.length === 0) {
       await axios
-          .post('http://localhost:8000/api/graduation/', this.form)
+          .post(`${API_URL}graduation/`, this.form)
           .then(response => {
               this.getGraduation()
                 this.showAlert("Тип выпуска добавлен")
@@ -350,13 +357,13 @@ sortBy(key) {
 },
 
 getGraduation() {
-  axios.get('http://localhost:8000/api/graduation/').then(response => {
+  axios.get(`${API_URL}graduation/`).then(response => {
       this.graduations = response.data
       this.isLoading = false
   })
 },
 getEduLevel() {
-  axios.get('http://localhost:8000/api/edu_level/').then(response => {
+  axios.get(`${API_URL}edu_level/`).then(response => {
       this.edulevels = response.data
   })
 
@@ -373,7 +380,7 @@ deleteGraduation(GraduationId) {
   this.$refs.confirmComponent.show("Вы уверены что хотите удалить эту специальность?")
     .then((confirmed) => {
       if (confirmed) {
-        axios.delete(`http://localhost:8000/api/graduation/${GraduationId}`).then(response => {
+        axios.delete(`${API_URL}graduation/${GraduationId}`).then(response => {
           this.getGraduation()
           this.showAlert("Тип выпуска удален")
         })

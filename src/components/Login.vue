@@ -527,7 +527,7 @@ export default {
 
       if (this.errors.length === 0) {
         await axios
-          .post("http://localhost:8000/api/login/", this.form)
+          .post(`${API_URL}login/`, this.form)
           .then((response) => {
             this.userStore.setToken(response.data);
             axios.defaults.headers.common["Authorization"] = "Bearer " + response.data.access;
@@ -538,15 +538,13 @@ export default {
             });
           })
           .catch((error) => {
-            console.log("error", error);
-
             this.errors.push("Неправильная связка логин - пароль, проверьте правильность написания");
           });
       }
 
       if (this.errors.length === 0) {
         await axios
-          .get("http://localhost:8000/api/me/")
+          .get(`${API_URL}me/`)
           .then((response) => {
             this.userStore.setUserInfo(response.data);
           })

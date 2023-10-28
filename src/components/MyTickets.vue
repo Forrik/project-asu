@@ -170,12 +170,26 @@ export default {
         this.errors = []
         
             await axios
-            .post(`http://localhost:8000/api/ticket_create/`, this.form) 
+            .post(`${API_URL}ticket_create/`, this.form) 
             .then(response => {
                 this.getMyTickets()
                 this.modalActive = false
 
-            })
+            }).catch(error => {
+              Object.keys(error.response.data).forEach((field) => {
+              if (Array.isArray(error.response.data[field])) {
+                error.response.data[field].forEach((errorMessage) => {
+                  this.errors.push(`${field}: ${errorMessage}`);
+                });
+              } else if (typeof error.response.data[field] === "string") {
+                this.errors.push(`${field}: ${error.response.data[field]}`);
+              } else {
+                this.errors.push(`${field}: An unknown error occurred`);
+              }
+            });
+          });
+            
+
     },
 
     openModal(index) {
@@ -183,13 +197,13 @@ export default {
         this.modalActive = true;
       },
       getMyTickets() {
-      axios.get(`http://localhost:8000/api/ticket?student=${this.userStore.user.id}`).then(response => {
+      axios.get(`${API_URL}ticket?student=${this.userStore.user.id}`).then(response => {
           this.tickets = response.data
           this.isLoading = false
       })
       },
       getTeachers() {
-        axios.get('http://localhost:8000/api/user?role=2').then(response => {
+        axios.get(`${API_URL}user?role=2`).then(response => {
           this.teachers = response.data
         })
       }

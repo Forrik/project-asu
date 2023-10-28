@@ -11,12 +11,12 @@
   <template>
       <div >
       <div class="row">
-          
+        <CustomAlert ref="alertComponent" />
+        <CustomConfirm ref="confirmComponent" />
         <div class="col-3"></div>
           <div class="col-8 content">
            
-              <CustomAlert ref="alertComponent" />
-              <CustomConfirm ref="confirmComponent" />
+             
           
           <div class="card">
          
@@ -86,6 +86,13 @@
                   
                   </tr>
                 </tbody>
+                <tbody v-if="sortedSpecialities.length === 0"> 
+                  <tr>
+                    <td colspan="7" class="text-center fw-bold">
+                      Пока нет ни одной специальности
+                    </td>
+                  </tr>
+                </tbody>
               </table>
               <div class="icon-add">
                   <a @click="openModal" href="#">   <Add /></a>
@@ -153,16 +160,10 @@
                     <div class="btn-modal-wrapper">
                       <button class="btn-modal">{{ editing ? "Обновить" : "Добавить" }}</button>
                     </div>
-    
-                    
-    
                   </form>
-                  
+              </div>
+              </div>
               
-              </div>
-          
-              </div>
-            
         </div>
       
         
@@ -193,7 +194,7 @@
             abbreviation: 1,
             education_level: 1
           },
-          modalActiveEdit: false,
+       
           modalActive: false,
           isLoading: true,
           form: {
@@ -230,7 +231,7 @@
     return this.specialities.sort((a, b) => {
       const key = this.sortKey;
       const direction = this.sortDirection[key];
-        console.log(typeof(a))
+      
 
 
       const aValue = a[key];
@@ -290,7 +291,7 @@
                   .then(response => {
                       this.getSpecialities()
                       this.showAlert("Специальность обновлена")
-                      this.modalActiveEdit = false
+                      this.modalActive = false
                     }).catch(error => {
     Object.keys(error.response.data).forEach(field => {
         error.response.data[field].forEach(errorMessage => {
@@ -341,22 +342,11 @@
 
         
 
-  //       openModalEdit(index) {
-  //   this.form = { ...this.specialities[index] };
-  //   this.form.education_level = this.specialities[index]?.education_level?.id;
-  //   this.modalActiveEdit = true;
-  // },
-
-
-  //       openModal(index) {
-  //         this.form = { ...this.specialities[index] };
-  //         this.modalActive = true;
-  //       },
 
         openModalEdit(index) {
       this.form = { ...this.specialities[index] };
       this.form.education_level = this.specialities[index]?.education_level?.id;
-      this.editing = true; // Указываем, что выполняется редактирование
+      this.editing = true;
       this.modalActive = true;
     },
 
@@ -367,7 +357,7 @@
 
     closeModal() {
       this.modalActive = false;
-      this.editing = false; // Сбрасываем флаг редактирования
+      this.editing = false; 
       this.errors = [];
     },
   

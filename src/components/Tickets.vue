@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-3"></div>
       <div class="col-8 content">
-        <CustomAlert ref="alertComponent" />
+        <CustomError ref="alertComponent" />
         <div>
           <ul class="nav">
             <li class="nav-item" v-on:click="counter = `newTickets`">
@@ -138,7 +138,7 @@
 <script>
 import axios from "axios";
 import { useUserStore } from "@/stores/user";
-import CustomAlert from "./CustomAlert.vue";
+import CustomError from "./CustomError.vue";
 import CustomConfirm from "./CustomConfirm.vue";
 
 export default {
@@ -166,7 +166,7 @@ export default {
   },
 
   components: {
-    CustomAlert,
+    CustomError,
     CustomConfirm,
   },
   methods: {
@@ -193,44 +193,50 @@ export default {
       this.activeIndex = index;
     },
     getNewTickets() {
-      axios
-        .get(`http://localhost:8000/api/ticket?ticket_status=1&teacher=${this.userStore.user.id}`)
-        .then((response) => {
-          this.newTickets = response.data;
-          this.isLoading = false;
-        });
+      axios.get(`${API_URL}ticket?ticket_status=1&teacher=${this.userStore.user.id}`).then((response) => {
+        this.newTickets = response.data;
+        this.isLoading = false;
+      });
     },
     getAcceptedTickets() {
-      axios
-        .get(`http://localhost:8000/api/ticket?ticket_status=2&teacher=${this.userStore.user.id}`)
-        .then((response) => {
-          this.acceptedTickets = response.data;
-          this.isLoading = false;
-        });
+      axios.get(`${API_URL}ticket?ticket_status=2&teacher=${this.userStore.user.id}`).then((response) => {
+        this.acceptedTickets = response.data;
+        this.isLoading = false;
+      });
     },
     getRejectedTickets() {
-      axios
-        .get(`http://localhost:8000/api/ticket?ticket_status=3&teacher=${this.userStore.user.id}`)
-        .then((response) => {
-          this.rejectedTickets = response.data;
-          this.isLoading = false;
-        });
+      axios.get(`${API_URL}ticket?ticket_status=3&teacher=${this.userStore.user.id}`).then((response) => {
+        this.rejectedTickets = response.data;
+        this.isLoading = false;
+      });
     },
     acceptTicket(ticketId) {
       this.$refs.confirmComponent.show("Вы действительно хотите принять эту заявку?").then((confirmed) => {
         if (confirmed) {
-          axios.post(`http://localhost:8000/api/ticket_status_update/${ticketId}`, { ticket_status: 2 });
-          setTimeout(() => {
-            location.reload();
-          }, 500);
-          this.getAcceptedTickets();
+          let requestSucceeded = false; // Переменная для отслеживания успешности запроса
+
+          axios
+            .post(`${API_URL}ticket_status_update/${ticketId}`, { ticket_status: 2 })
+            .then(() => {
+              requestSucceeded = true; // Устанавливаем, что запрос успешно выполнен
+            })
+            .catch((error) => {
+              this.showAlert(error.response.data.error);
+            })
+            .finally(() => {
+              if (requestSucceeded) {
+                // Только если запрос выполнен успешно
+                location.reload();
+                this.getAcceptedTickets();
+              }
+            });
         }
       });
     },
     rejectTicket(ticketId) {
       this.$refs.confirmComponent.show("Вы действительно хотите отклонить эту заявку?").then((confirmed) => {
         if (confirmed) {
-          axios.post(`http://localhost:8000/api/ticket_status_update/${ticketId}`, { ticket_status: 3 });
+          axios.post(`${API_URL}ticket_status_update/${ticketId}`, { ticket_status: 3 });
           setTimeout(() => {
             location.reload();
           }, 500);

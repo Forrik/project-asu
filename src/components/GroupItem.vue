@@ -5,7 +5,15 @@ import Add from "./icons/Add.vue";
 </script>
 
 <template>
-  <div class="graduation-name">Группа:</div>
+  <div style="position: absolute; top: -50%; left: -10%; width: 100% !important">
+    <CustomConfirm ref="confirmComponent" />
+    <CustomAlert ref="alertComponent" />
+  </div>
+  <div class="graduation-name">
+    Группа:{{
+      group && group.speciality ? group.speciality.abbreviation + "-" + group.course + group.number : "Недоступно"
+    }}
+  </div>
 
   <svg
     @click="gear = 2"
@@ -37,9 +45,6 @@ import Add from "./icons/Add.vue";
   </svg>
 
   <div v-if="gear === 1">
-    <CustomConfirm ref="confirmComponent" />
-    <CustomAlert ref="alertComponent" />
-
     <table class="table table-bordered table-hover">
       <thead>
         <tr>
@@ -61,10 +66,22 @@ import Add from "./icons/Add.vue";
           <td>{{ student.first_name }} {{ student.middle_name }} {{ student.last_name }}</td>
           <td>{{ student.education_base ? student.education_base.name : "" }}</td>
           <td>{{ student.username }}</td>
-          <td>******</td>
-          <td>{{ student.student_status }}</td>
+          <td>
+            <span v-if="!student.showPassword" @click="togglePassword(student)" style="cursor: pointer">
+              *********
+            </span>
+            <span v-else @click="togglePassword(student)">
+              {{ student.password_text }}
+            </span>
+          </td>
+          <td>{{ student.student_status ? student.student_status.name : "" }}</td>
           <td><Edit @click="openModalEdit(index)" /></td>
-          <td><Delete @click="deleteStudent(index)" /></td>
+          <td><Delete @click="deleteStudent(student.id)" /></td>
+        </tr>
+      </tbody>
+      <tbody v-if="students.length === 0">
+        <tr>
+          <td colspan="9" class="text-center">Ничего не найдено</td>
         </tr>
       </tbody>
     </table>
@@ -72,117 +89,20 @@ import Add from "./icons/Add.vue";
       <Add @click="openModal()" />
     </div>
 
-    <div v-show="modalActive">
+    <div v-show="modalActive || modalActiveEdit">
       <div
         @click="
           modalActive = false;
-          this.errors = '';
-        "
-        class="modal-wrapper"
-      ></div>
-      <div class="modal-window">
-        <h4 class="modal-title py-3 fw-bold">Добавить</h4>
-        <svg
-          @click="
-            modalActive = false;
-            this.errors = '';
-          "
-          class="icon-close"
-          xmlns="http://www.w3.org/2000/svg"
-          height="35"
-          viewBox="0 0 16 16"
-          width="35"
-        >
-          <polygon
-            fill-rule="evenodd"
-            points="8 9.414 3.707 13.707 2.293 12.293 6.586 8 2.293 3.707 3.707 2.293 8 6.586 12.293 2.293 13.707 3.707 9.414 8 13.707 12.293 12.293 13.707 8 9.414"
-          />
-        </svg>
-        <form v-on:submit.prevent="addForm">
-          <div class="form-outline mb-3">
-            <label class="form-label fw-bold ms-4">Номер зачётной книжки</label>
-            <input
-              v-model="form.number_student_book"
-              type="text"
-              class="form-control form-modal"
-              placeholder="Введите тип выпуска "
-            />
-          </div>
-          <div class="form-outline mb-3">
-            <label class="form-label fw-bold ms-4">Имя</label>
-            <input
-              v-model="form.first_name"
-              type="text"
-              class="form-control form-modal"
-              placeholder="Введите тип выпуска "
-            />
-          </div>
-          <div class="form-outline mb-3">
-            <label class="form-label fw-bold ms-4">Фамилия</label>
-            <input
-              v-model="form.last_name"
-              type="text"
-              class="form-control form-modal"
-              placeholder="Введите тип выпуска "
-            />
-          </div>
-          <div class="form-outline mb-3">
-            <label class="form-label fw-bold ms-4">Отчество</label>
-            <input
-              v-model="form.middle_name"
-              type="text"
-              class="form-control form-modal"
-              placeholder="Введите тип выпуска "
-            />
-          </div>
-          <div class="form-outline mb-3">
-            <label class="form-label fw-bold ms-4">Основа обучения</label>
-            <select v-model="form.education_base" class="form-select form-modal">
-              <option
-                v-for="education_base in education_bases"
-                v-bind:key="education_base.id"
-                :value="education_base.id"
-              >
-                {{ education_base.name }}
-              </option>
-            </select>
-          </div>
-          <div class="form-outline mb-3">
-            <label class="form-label fw-bold ms-4">Статус студента</label>
-            <select v-model="form.student_status" class="form-select form-modal">
-              <option
-                v-for="student_status in student_statuses"
-                v-bind:key="student_status.id"
-                :value="student_status.id"
-              >
-                {{ student_status.name }}
-              </option>
-            </select>
-          </div>
-          <template v-if="errors.length > 0">
-            <div class="alert alert-danger mt-3">
-              <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
-            </div>
-          </template>
-
-          <div class="btn-modal-wrapper">
-            <button class="btn-modal">Обновить</button>
-          </div>
-        </form>
-      </div>
-    </div>
-    <div v-show="modalActiveEdit">
-      <div
-        @click="
           modalActiveEdit = false;
           this.errors = '';
         "
         class="modal-wrapper"
       ></div>
-      <div class="modal-window">
-        <h4 class="modal-title py-3 fw-bold">Редактировать</h4>
+      <div class="modal-window modal-create-user">
+        <h4 class="modal-title py-3 fw-bold">{{ modalTitle }}</h4>
         <svg
           @click="
+            modalActive = false;
             modalActiveEdit = false;
             this.errors = '';
           "
@@ -197,239 +117,313 @@ import Add from "./icons/Add.vue";
             points="8 9.414 3.707 13.707 2.293 12.293 6.586 8 2.293 3.707 3.707 2.293 8 6.586 12.293 2.293 13.707 3.707 9.414 8 13.707 12.293 12.293 13.707 8 9.414"
           />
         </svg>
-        <form v-on:submit.prevent="submitForm">
-          <div class="form-outline mb-3">
-            <label class="form-label fw-bold ms-4">Номер зачётной книжки</label>
-            <input
-              v-model="form.number_student_book"
-              type="text"
-              class="form-control form-modal"
-              placeholder="Введите тип выпуска "
-            />
-          </div>
-          <div class="form-outline mb-3">
-            <label class="form-label fw-bold ms-4">Имя</label>
-            <input
-              v-model="form.first_name"
-              type="text"
-              class="form-control form-modal"
-              placeholder="Введите тип выпуска "
-            />
-          </div>
-          <div class="form-outline mb-3">
-            <label class="form-label fw-bold ms-4">Фамилия</label>
-            <input
-              v-model="form.last_name"
-              type="text"
-              class="form-control form-modal"
-              placeholder="Введите тип выпуска "
-            />
-          </div>
-          <div class="form-outline mb-3">
-            <label class="form-label fw-bold ms-4">Отчество</label>
-            <input
-              v-model="form.middle_name"
-              type="text"
-              class="form-control form-modal"
-              placeholder="Введите тип выпуска "
-            />
-          </div>
-          <div class="form-outline mb-3">
-            <label class="form-label fw-bold ms-4">Основа обучения</label>
-            <select v-model="form.education_base" class="form-select form-modal">
-              <option
-                v-for="education_base in education_bases"
-                v-bind:key="education_base.id"
-                :value="education_base.id"
-              >
-                {{ education_base.name }}
-              </option>
-            </select>
-          </div>
-          <div class="form-outline mb-3">
-            <label class="form-label fw-bold ms-4">Статус студента</label>
-            <select v-model="form.student_status" class="form-select form-modal">
-              <option
-                v-for="student_status in student_statuses"
-                v-bind:key="student_status.id"
-                :value="student_status.id"
-              >
-                {{ student_status.name }}
-              </option>
-            </select>
-          </div>
-          <template v-if="errors.length > 0">
-            <div class="alert alert-danger mt-3">
-              <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
+        <div class="form-wrapper">
+          <div class="form-item">
+            <div class="form-outline mb-3">
+              <label class="form-label fw-bold ms-4">Имя</label>
+              <input
+                v-model="form.first_name"
+                type="text"
+                class="form-control form-modal"
+                placeholder="Введите тип выпуска "
+              />
             </div>
-          </template>
-
-          <div class="btn-modal-wrapper">
-            <button class="btn-modal">Обновить</button>
+            <div class="form-outline mb-3">
+              <label class="form-label fw-bold ms-4">Фамилия</label>
+              <input
+                v-model="form.last_name"
+                type="text"
+                class="form-control form-modal"
+                placeholder="Введите тип выпуска "
+              />
+            </div>
+            <div class="form-outline mb-3">
+              <label class="form-label fw-bold ms-4">Отчество</label>
+              <input
+                v-model="form.middle_name"
+                type="text"
+                class="form-control form-modal"
+                placeholder="Введите тип выпуска "
+              />
+            </div>
+            <div class="form-outline mb-3">
+              <label class="form-label fw-bold ms-4">Логин</label>
+              <input v-model="form.username" type="text" class="form-control form-modal" placeholder="Введите логин" />
+            </div>
           </div>
-        </form>
+          <div class="form-item">
+            <div class="form-outline mb-3">
+              <label class="form-label fw-bold ms-4">Номер зачётной книжки</label>
+              <input
+                v-model="form.number_student_book"
+                type="text"
+                class="form-control form-modal"
+                placeholder="Введите номер зачетной "
+              />
+            </div>
+            <div class="form-outline mb-3">
+              <label class="form-label fw-bold ms-4">Основа обучения</label>
+              <select v-model="form.education_base" class="form-select form-modal">
+                <option
+                  v-for="education_base in education_bases"
+                  v-bind:key="education_base.id"
+                  :value="education_base.id"
+                >
+                  {{ education_base.name }}
+                </option>
+              </select>
+            </div>
+            <div class="form-outline mb-3">
+              <label class="form-label fw-bold ms-4">Статус студента</label>
+              <select v-model="form.student_status" class="form-select form-modal">
+                <option
+                  v-for="student_status in student_statuses"
+                  v-bind:key="student_status.id"
+                  :value="student_status.id"
+                >
+                  {{ student_status.name }}
+                </option>
+              </select>
+            </div>
+            <div class="form-outline mb-3">
+              <label class="form-label fw-bold ms-4">Пароль</label>
+              <div class="input-group mb-3">
+                <input
+                  v-model="form.password_text"
+                  class="form-control form-modal"
+                  placeholder="Введите или сгенерируйте пароль"
+                />
+                <button class="btn btn-outline-secondary" @click="generatePassword">Сгенерировать пароль</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <template v-if="errors.length > 0">
+          <div class="alert alert-danger mt-3">
+            <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
+          </div>
+        </template>
+
+        <div class="btn-modal-wrapper">
+          <button class="btn-modal" @click="modalAction">{{ modalActionText }}</button>
+        </div>
       </div>
     </div>
   </div>
-  <div v-if="gear === 2">
+  <div v-if="gear === 2" style="margin: 15px">
     <ul class="nav">
-      <li class="nav-item" v-on:click="counter = `management`">
+      <li class="nav-item" v-for="(category, index) in categoriesData" :key="index">
         <a
           class="nav-link-graduate"
-          :class="{ active: activeIndex === 0 }"
-          @click="setActive(0)"
+          :class="{ active: selectedCategory === category.name }"
+          @click="showCategory(category)"
           aria-current="page"
           href="#"
-          >Руководство ВКР</a
-        >
-      </li>
-      <li class="nav-item" v-on:click="counter = `main`">
-        <a class="nav-link-graduate" :class="{ active: activeIndex === 1 }" @click="setActive(1)" href="#"
-          >Основная часть</a
-        >
-      </li>
-      <li class="nav-item" v-on:click="counter = `economics`">
-        <a class="nav-link-graduate" :class="{ active: activeIndex === 2 }" @click="setActive(2)" href="#"
-          >Экономическая часть</a
-        >
-      </li>
-      <li class="nav-item" v-on:click="counter = `informationSecurity`">
-        <a class="nav-link-graduate" :class="{ active: activeIndex === 3 }" @click="setActive(3)" href="#"
-          >Информационная безопасность</a
-        >
-      </li>
-      <li class="nav-item" v-on:click="counter = `standartControl`">
-        <a class="nav-link-graduate" :class="{ active: activeIndex === 4 }" @click="setActive(4)" href="#"
-          >Нормконтроль</a
+          >{{ category.name }}</a
         >
       </li>
     </ul>
+
     <div class="card">
-      <div class="table-responsive">
-        Распределнные:
-        <table v-if="counter === `management`" class="table table-bordered table-hover">
+      <div v-if="filteredConsultations.length > 0" class="table-responsive">
+        <div v-for="(consultation, consultationIndex) in filteredConsultations" :key="consultationIndex">
+          <div class="distriburion">Распределенные:</div>
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th scope="col">Студент</th>
+                <th scope="col">Преподаватель</th>
+                <th scope="col">Норма времени</th>
+                <th scope="col">Комментарий</th>
+                <th scope="col">Статус</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr v-for="(relation, relationIndex) in consultation.assigned" :key="relationIndex">
+                <td>
+                  {{ relation.student.first_name }} {{ relation.student.middle_name }} {{ relation.student.last_name }}
+                </td>
+                <td>
+                  {{ relation.teacher.first_name }} {{ relation.teacher.middle_name }} {{ relation.teacher.last_name }}
+                </td>
+                <td>{{ consultation.hours }}</td>
+                <td>{{ relation.comment }}</td>
+                <td>{{ relation.student.student_status ? relation.student.student_status : "" }}</td>
+                <td><Edit @click="openModalEditConsultancy(relation.id, consultation.is_main)" /></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="icon-add">
+            <Add @click="openModalConsultancy(consultation.is_main)" />
+          </div>
+        </div>
+        <div class="distriburion">Нераспределенные:</div>
+        <table class="table table-bordered table-hover">
           <thead>
             <tr>
-              <th scope="col">Студент№</th>
+              <th scope="col">Студент</th>
               <th scope="col">Преподаватель</th>
               <th scope="col">Норма времени</th>
-              <th scope="col">Комметарий</th>
+              <th scope="col">Комментарий</th>
               <th scope="col">Статус</th>
-              <th scope="col"></th>
             </tr>
           </thead>
 
-          <tbody v-for="(consultation, index) in consultations">
-            <tr v-for="(relation, sIndex) in consultation.assigned" :key="sIndex">
+          <tbody v-for="(consultation, index) in filteredConsultations" :key="index">
+            <tr v-for="(relation, index) in consultation.not_assigned" :key="index">
               <td>
-                {{ relation.student.last_name }} {{ relation.student.first_name }} {{ relation.student.middle_name }}
+                {{ relation.first_name }}
+                {{ relation.middle_name }}
+                {{ relation.last_name }}
               </td>
+              <td></td>
+              <td></td>
+              <td></td>
               <td>
-                {{ relation.teacher.last_name }} {{ relation.teacher.first_name }} {{ relation.teacher.middle_name }}
+                {{ relation.student_status ? relation.student_status : "" }}
               </td>
-              <td>{{ consultation.hours }}</td>
-              <td>{{ relation.comment ? relation.comment : "" }}</td>
-              <td>{{ relation.student.student_status ? relation.student.student_status.name : "" }}</td>
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+  </div>
 
-        Нераспределенные:
-        <table v-if="counter === `management`" class="table table-bordered table-hover">
-          <thead>
-            <tr>
-              <th scope="col">Студент№</th>
-              <th scope="col">Преподаватель</th>
-              <th scope="col">Норма времени</th>
-              <th scope="col">Комметарий</th>
-              <th scope="col">Статус</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
+  <div v-show="modalConsultancy">
+    <div
+      @click="
+        modalConsultancy = false;
+        this.errors = '';
+      "
+      class="modal-wrapper"
+    ></div>
+    <div class="modal-window modal-create-user">
+      <h4 class="modal-title py-3 fw-bold">Добавить</h4>
+      <svg
+        @click="
+          modalConsultancy = false;
+          this.errors = '';
+        "
+        class="icon-close"
+        xmlns="http://www.w3.org/2000/svg"
+        height="35"
+        viewBox="0 0 16 16"
+        width="35"
+      >
+        <polygon
+          fill-rule="evenodd"
+          points="8 9.414 3.707 13.707 2.293 12.293 6.586 8 2.293 3.707 3.707 2.293 8 6.586 12.293 2.293 13.707 3.707 9.414 8 13.707 12.293 12.293 13.707 8 9.414"
+        />
+      </svg>
 
-          <tbody v-for="(consultation, index) in consultations">
-            <tr v-for="(relation, sIndex) in consultation.not_assigned" :key="sIndex">
-              <td>{{ relation.last_name }} {{ relation.first_name }} {{ relation.middle_name }}</td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td>{{ relation.student_status ? relation.student_status.name : "" }}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="form-wrapper"></div>
+      <div class="form-outline mb-3">
+        <label class="form-label fw-bold ms-4">Преподаватель</label>
+        <select v-model="form.teacher" class="form-select form-modal">
+          <option v-for="teacher in teachers" v-bind:key="teacher.id" :value="teacher.id">
+            {{ teacher.first_name }} {{ teacher.middle_name }} {{ teacher.last_name }}
+          </option>
+        </select>
+      </div>
+      <div class="form-outline mb-3">
+        <label class="form-label fw-bold ms-4">Студент</label>
+        <select v-model="form.student" class="form-select form-modal">
+          <option v-for="student in students" v-bind:key="student.id" :value="student.id">
+            {{ student.first_name }} {{ student.middle_name }} {{ student.last_name }}
+          </option>
+        </select>
+      </div>
 
-        <table v-else-if="counter === `main`" class="table table-bordered table-hover">
-          <thead>
-            <tr>
-              <th scope="col">№</th>
-              <th scope="col">Преподаватель</th>
-              <th scope="col">Количество часов</th>
-              <th scope="col">Остаток</th>
-              <th scope="col"></th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
+      <div class="form-outline mb-3">
+        <label class="form-label fw-bold ms-4" :for="isMain ? 'message' : 'comment'">Заявка</label>
+        <input
+          v-model="selectedField"
+          type="text"
+          class="form-control form-modal"
+          placeholder="Введите текст заявки"
+          :id="isMain ? 'message' : 'comment'"
+        />
+      </div>
 
-          <tbody>
-            <tr>
-              <td>123</td>
-            </tr>
-          </tbody>
-        </table>
+      <template v-if="errors.length > 0">
+        <div class="alert alert-danger mt-3">
+          <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
+        </div>
+      </template>
 
-        <table v-else-if="counter === `economics`" class="table table-bordered table-hover">
-          <thead>
-            <tr>
-              <th scope="col">Группа</th>
-              <th scope="col">Специальность</th>
-              <th scope="col">Уровень образования</th>
-              <th scope="col">Курс</th>
-              <th scope="col">Номер</th>
-              <th scope="col">Форма обучения</th>
-              <th scope="col"></th>
-              <th scope="col"></th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
+      <div class="btn-modal-wrapper">
+        <button @click="addConsultancy" class="btn-modal">Добавить</button>
+      </div>
+    </div>
+  </div>
 
-          <a @click="openModalGroups" href="#"> <Add /></a>
-        </table>
+  <div v-show="modalEditConsultancy">
+    <div
+      @click="
+        modalEditConsultancy = false;
+        this.errors = '';
+      "
+      class="modal-wrapper"
+    ></div>
+    <div class="modal-window modal-create-user">
+      <h4 class="modal-title py-3 fw-bold">Редактировать</h4>
+      <svg
+        @click="
+          modalEditConsultancy = false;
+          this.errors = '';
+        "
+        class="icon-close"
+        xmlns="http://www.w3.org/2000/svg"
+        height="35"
+        viewBox="0 0 16 16"
+        width="35"
+      >
+        <polygon
+          fill-rule="evenodd"
+          points="8 9.414 3.707 13.707 2.293 12.293 6.586 8 2.293 3.707 3.707 2.293 8 6.586 12.293 2.293 13.707 3.707 9.414 8 13.707 12.293 12.293 13.707 8 9.414"
+        />
+      </svg>
 
-        <table v-else-if="counter === `standartControl`" class="table table-bordered table-hover">
-          <thead>
-            <tr>
-              <th scope="col">№</th>
-              <th scope="col">Специальность</th>
-              <th scope="col">Вид консультирования</th>
-              <th scope="col">Количество часов</th>
-              <th scope="col"></th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
+      <div class="form-wrapper"></div>
+      <div class="form-outline mb-3">
+        <label class="form-label fw-bold ms-4">Преподаватель</label>
+        <select v-model="form.teacher" class="form-select form-modal">
+          <option v-for="teacher in teachers" v-bind:key="teacher.id" :value="teacher.id">
+            {{ teacher.first_name }} {{ teacher.middle_name }} {{ teacher.last_name }}
+          </option>
+        </select>
+      </div>
+      <div class="form-outline mb-3">
+        <label class="form-label fw-bold ms-4">Студент</label>
+        <select v-model="form.student" class="form-select form-modal" disabled>
+          <option v-for="student in students" v-bind:key="student.id" :value="student.id">
+            {{ student.first_name }} {{ student.middle_name }} {{ student.last_name }}
+          </option>
+        </select>
+      </div>
 
-          <tbody v-if="time_norms.length === 0">
-            <tr>
-              <td colspan="6">Нет данных</td>
-            </tr>
-          </tbody>
+      <div class="form-outline mb-3">
+        <label class="form-label fw-bold ms-4" :for="isMain ? 'message' : 'comment'">Заявка</label>
+        <input
+          v-model="selectedField"
+          type="text"
+          class="form-control form-modal"
+          placeholder="Введите текст заявки"
+          :id="isMain ? 'message' : 'comment'"
+        />
+      </div>
 
-          <a @click="openModal" href="#"> <Add /></a>
-        </table>
+      <template v-if="errors.length > 0">
+        <div class="alert alert-danger mt-3">
+          <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
+        </div>
+      </template>
 
-        <table v-else-if="counter === `informationSecurity`" class="table table-bordered table-hover">
-          <thead>
-            <tr>
-              <th scope="col">№</th>
-              <th scope="col">Специальность</th>
-              <th scope="col">Вид консультирования</th>
-              <th scope="col">Количество часов</th>
-              <th scope="col"></th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-
-          <a @click="openModal" href="#"> <Add /></a>
-        </table>
+      <div class="btn-modal-wrapper">
+        <button @click="editConsultancy" class="btn-modal">Редактировать</button>
       </div>
     </div>
   </div>
@@ -441,30 +435,45 @@ import CustomAlert from "./CustomAlert.vue";
 import CustomConfirm from "./CustomConfirm.vue";
 
 export default {
+  name: "GroupItem",
   props: {
-    groupId: Number, // Определите проп для передачи идентификатора группы
+    groupId: Number,
   },
   data() {
     return {
       activeIndex: 0,
-      counter: "main",
+      counter: "Руководство ВКР",
+      form: {
+        first_name: "",
+        last_name: "",
+        middle_name: "",
+        number_student_book: "",
+        education_base: "",
+        student_status: "",
+        password: "",
+        student_group: this.groupId,
+        role: 1,
+      },
+      consultationId: null,
       groups: [],
       group: null,
       modalActiveEdit: false,
+      modalEditConsultancy: false,
+      modalConsultancy: false,
+      errors: [],
+      teachers: [],
+      students: [],
+      education_forms: [],
       gear: 1,
       modalActive: false,
       education_bases: [],
       student_statuses: [],
+
       students: [],
       errors: [],
-      form: {
-        number_student_book: "",
-        first_name: "",
-        last_name: "",
-        middle_name: "",
-        education_base: "",
-        student_status: "",
-      },
+      consultations: [],
+      categoriesData: [],
+      selectedCategory: null,
     };
   },
   mounted() {
@@ -472,57 +481,320 @@ export default {
     this.getEducationBase();
     this.getStudentStatus();
     this.getConsultations();
+    this.getGroup();
+    this.getTeachers();
+    this.getConsultancyTypes();
+    this.getConsultancy();
+    this.getTickets();
+  },
+  computed: {
+    filteredConsultations() {
+      return this.consultations.filter((consultation) => {
+        return consultation.name === this.selectedCategory;
+      });
+    },
+    isMain() {
+      return this.form.is_main;
+    },
+    selectedField: {
+      get() {
+        return this.isMain ? this.form.message : this.form.comment;
+      },
+      set(value) {
+        if (this.isMain) {
+          this.form.message = value;
+        } else {
+          this.form.comment = value;
+        }
+      },
+    },
   },
   components: {
     CustomAlert,
     CustomConfirm,
   },
+  created() {
+    axios
+      .get(`${API_URL}students_by_consultancy/${this.groupId}`)
+      .then((response) => {
+        this.categoriesData = response.data;
+
+        if (this.categoriesData.length > 0) {
+          this.selectedCategory = this.categoriesData.name;
+        }
+      })
+      .catch((error) => {
+        console.error("Ошибка при загрузке данных:", error);
+      });
+  },
   methods: {
-    async addForm() {
-      this.errors.length = 0;
-
-      if (this.errors.length === 0) {
-        await axios.post(`http://localhost:8000/api/user/`, { student_group: this.groupId }).then((response) => {
-          this.getGroup();
-          this.showAlert("Информация добавлена");
-        });
-      }
+    showCategory(category) {
+      this.selectedCategory = category.name;
+      this.form.consultancy_type = category.id;
     },
-    async submitForm() {
-      this.errors.length = 0;
+    async addForm() {
+      this.errors = [];
+
+      if (this.form.first_name === undefined || this.form.first_name.trim() === "") {
+        this.errors.push(ERRORS.first_name);
+      }
+
+      if (this.form.last_name === undefined || this.form.last_name.trim() === "") {
+        this.errors.push(ERRORS.last_name);
+      }
+
+      if (this.form.middle_name === undefined || this.form.middle_name.trim() === "") {
+        this.errors.push(ERRORS.middle_name);
+      }
+
+      if (this.form.username === undefined || this.form.username.trim() === "") {
+        this.errors.push(ERRORS.login);
+      }
+
+      if (this.form.password_text === undefined || this.form.password_text.trim() === "") {
+        this.errors.push(ERRORS.password);
+      } else {
+        this.form.password = this.form.password_text;
+      }
 
       if (this.errors.length === 0) {
+        this.form.student_group = this.groupId; // Добавьте информацию о группе студента
         await axios
-          .put(`http://localhost:8000/api/user/${this.form.id}/`, {
-            number_student_book: this.form.number_student_book,
-            first_name: this.form.first_name,
-            last_name: this.form.last_name,
-            middle_name: this.form.middle_name,
-            education_base: this.form.education_base,
-            student_status: this.form.student_status,
-          })
+          .post(`${API_URL}user/`, this.form)
           .then((response) => {
-            this.getGroup();
-            this.showAlert("Информация обновлена");
+            this.modalActive = false;
+            this.getStudents();
+
+            this.showAlert("Информация добавлена");
+          })
+          .catch((error) => {
+            Object.keys(error.response.data).forEach((field) => {
+              if (Array.isArray(error.response.data[field])) {
+                error.response.data[field].forEach((errorMessage) => {
+                  this.errors.push(`${field}: ${errorMessage}`);
+                });
+              } else if (typeof error.response.data[field] === "string") {
+                this.errors.push(`${field}: ${error.response.data[field]}`);
+              } else {
+                this.errors.push(`${field}: An unknown error occurred`);
+              }
+            });
           });
       }
     },
+    async submitForm() {
+      this.errors = [];
+
+      if (this.form.first_name === undefined || this.form.first_name.trim() === "") {
+        this.errors.push(ERRORS.first_name);
+      }
+
+      if (this.form.last_name === undefined || this.form.last_name.trim() === "") {
+        this.errors.push(ERRORS.last_name);
+      }
+
+      if (this.form.middle_name === undefined || this.form.middle_name.trim() === "") {
+        this.errors.push(ERRORS.middle_name);
+      }
+
+      if (this.form.username === undefined || this.form.username.trim() === "") {
+        this.errors.push(ERRORS.login);
+      }
+
+      if (this.form.password_text === undefined || this.form.password_text.trim() === "") {
+        this.errors.push(ERRORS.password);
+      } else {
+        this.form.password = this.form.password_text;
+      }
+
+      if (this.errors.length === 0) {
+        await axios
+          .patch(`${API_URL}user/${this.form.id}/`, this.form)
+          .then((response) => {
+            this.getStudents();
+            this.modalActiveEdit = false;
+            this.showAlert("Информация обновлена");
+          })
+          .catch((error) => {
+            Object.keys(error.response.data).forEach((field) => {
+              if (Array.isArray(error.response.data[field])) {
+                error.response.data[field].forEach((errorMessage) => {
+                  this.errors.push(`${field}: ${errorMessage}`);
+                });
+              } else if (typeof error.response.data[field] === "string") {
+                this.errors.push(`${field}: ${error.response.data[field]}`);
+              } else {
+                this.errors.push(`${field}: An unknown error occurred`);
+              }
+            });
+          });
+      }
+    },
+    // async addConsultancy() {
+    //   this.errors = [];
+
+    //   if (this.errors.length === 0) {
+    //     await axios
+    //       .post(`${API_URL}consultancy/`, this.form)
+    //       .then((response) => {
+    //         this.getConsultations();
+    //         this.form = "";
+    //         this.modalConsultancy = false;
+    //         this.showAlert("Информация обновлена");
+    //       })
+    //       .catch((error) => {
+    //         Object.keys(error.response.data).forEach((field) => {
+    //           if (Array.isArray(error.response.data[field])) {
+    //             error.response.data[field].forEach((errorMessage) => {
+    //               this.errors.push(`${field}: ${errorMessage}`);
+    //             });
+    //           } else if (typeof error.response.data[field] === "string") {
+    //             this.errors.push(`${field}: ${error.response.data[field]}`);
+    //           } else {
+    //             this.errors.push(`${field}: An unknown error occurred`);
+    //           }
+    //         });
+    //       });
+    //   }
+    // },
+
+    async addConsultancy() {
+      this.errors = [];
+
+      if (this.errors.length === 0) {
+        let patchURL = "";
+        if (this.form.is_main) {
+          // Если консультация is_main, используйте один URL
+          patchURL = `${API_URL}ticket/`;
+        } else {
+          // В противном случае, используйте другой URL
+          patchURL = `${API_URL}consultancy/`;
+        }
+
+        this.form.ticket_status = 2;
+        await axios
+          .post(patchURL, this.form)
+          .then((response) => {
+            this.getConsultations();
+            this.modalConsultancy = false;
+            this.showAlert("Информация добавлена");
+          })
+          .catch((error) => {
+            Object.keys(error.response.data).forEach((field) => {
+              if (Array.isArray(error.response.data[field])) {
+                error.response.data[field].forEach((errorMessage) => {
+                  this.errors.push(`${field}: ${errorMessage}`);
+                });
+              } else if (typeof error.response.data[field] === "string") {
+                this.errors.push(`${field}: ${error.response.data[field]}`);
+              } else {
+                this.errors.push(`${field}: An unknown error occurred`);
+              }
+            });
+          });
+      }
+    },
+
+    async editConsultancy() {
+      this.errors = [];
+
+      if (this.errors.length === 0) {
+        let patchURL = "";
+        if (this.form.is_main) {
+          // Если консультация is_main, используйте один URL
+          patchURL = `${API_URL}ticket/${this.form.id}/`;
+        } else {
+          // В противном случае, используйте другой URL
+          patchURL = `${API_URL}consultancy/${this.form.id}/`;
+        }
+
+        await axios
+          .put(patchURL, this.form)
+          .then((response) => {
+            this.getConsultations();
+            this.modalEditConsultancy = false;
+            this.showAlert("Информация обновлена");
+          })
+          .catch((error) => {
+            Object.keys(error.response.data).forEach((field) => {
+              if (Array.isArray(error.response.data[field])) {
+                error.response.data[field].forEach((errorMessage) => {
+                  this.errors.push(`${field}: ${errorMessage}`);
+                });
+              } else if (typeof error.response.data[field] === "string") {
+                this.errors.push(`${field}: ${error.response.data[field]}`);
+              } else {
+                this.errors.push(`${field}: An unknown error occurred`);
+              }
+            });
+          });
+      }
+    },
+    // async editConsultancy() {
+    //   this.errors = [];
+
+    //   if (this.errors.length === 0) {
+    //     await axios
+    //       .patch(`${API_URL}consultancy/${this.form.id}/`, this.form)
+    //       .then((response) => {
+    //         this.getConsultations();
+    //         this.modalEditConsultancy = false;
+    //         this.showAlert("Информация обновлена");
+    //       })
+    //       .catch((error) => {
+    //         Object.keys(error.response.data).forEach((field) => {
+    //           if (Array.isArray(error.response.data[field])) {
+    //             error.response.data[field].forEach((errorMessage) => {
+    //               this.errors.push(`${field}: ${errorMessage}`);
+    //             });
+    //           } else if (typeof error.response.data[field] === "string") {
+    //             this.errors.push(`${field}: ${error.response.data[field]}`);
+    //           } else {
+    //             this.errors.push(`${field}: An unknown error occurred`);
+    //           }
+    //         });
+    //       });
+    //   }
+    // },
+    togglePassword(student) {
+      student.showPassword = !student.showPassword;
+    },
+    // console.error("Ошибка при обновлении:", error.response.data.error);
+
     showAlert(message) {
       this.$refs.alertComponent.show(message);
     },
+
+    generatePassword() {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&()";
+      let generatedPassword = "";
+
+      for (let i = 0; i < 8; i++) {
+        const randomIndex = Math.floor(Math.random() * chars.length);
+        generatedPassword += chars[randomIndex];
+      }
+
+      this.form.password = generatedPassword;
+      this.form.password_text = generatedPassword;
+    },
     getStudents() {
-      axios.get(`http://localhost:8000/api/user?student_group=${this.groupId}`).then((res) => {
+      axios.get(`${API_URL}user_unsafe?student_group=${this.groupId}`).then((res) => {
         this.students = res.data;
-        console.log(this.students);
+      });
+    },
+
+    getGroup() {
+      axios.get(`${API_URL}student_group/${this.groupId}`).then((res) => {
+        this.group = res.data;
       });
     },
     getEducationBase() {
-      axios.get(`http://localhost:8000/api/education_base/`).then((response) => {
+      axios.get(`${API_URL}education_base/`).then((response) => {
         this.education_bases = response.data;
       });
     },
     getStudentStatus() {
-      axios.get(`http://localhost:8000/api/stud_status/`).then((response) => {
+      axios.get(`${API_URL}stud_status/`).then((response) => {
         this.student_statuses = response.data;
       });
     },
@@ -532,6 +804,35 @@ export default {
         this.consultations = response.data;
       });
     },
+
+    getConsultancy() {
+      axios.get(`http://localhost:8000/api/consultancy/`).then((response) => {
+        this.consultancies = response.data;
+        console.log(this.consultancies);
+      });
+    },
+
+    getConsultancyTypes() {
+      axios.get(`${API_URL}consultancy_type/`).then((response) => {
+        this.consultancy_types = response.data;
+      });
+    },
+    getTeachers() {
+      axios.get(`${API_URL}user?role=2`).then((res) => {
+        this.teachers = res.data;
+        this.isLoading = false;
+        console.log(this.teachers);
+      });
+    },
+
+    getTickets() {
+      axios.get(`${API_URL}ticket/`).then((response) => {
+        this.tickets = response.data;
+        this.isLoading = false;
+        console.log(this.tickets);
+      });
+    },
+
     setActive(index) {
       this.activeIndex = index;
     },
@@ -540,27 +841,108 @@ export default {
         .show("Вы уверены что хотите удалить учетную запись этого студента?")
         .then((confirmed) => {
           if (confirmed) {
-            axios.delete(`http://localhost:8000/api/user/${StudentId}`).then((response) => {
-              this.getGroup();
+            axios.delete(`${API_URL}user/${StudentId}`).then((response) => {
+              this.getStudents();
               this.showAlert("Учетная запись студента удалена");
             });
           }
         });
     },
     openModalEdit(StudentId) {
-      this.form = { ...this.groups[StudentId] };
+      this.modalTitle = "Редактировать";
+      this.modalAction = this.submitForm;
+      this.modalActionText = "Редактировать";
+
+      this.form = { ...this.students[StudentId] };
       this.modalActiveEdit = true;
-      this.form.student_status = this.groups[StudentId]?.student_status?.id;
-      this.form.education_base = this.groups[StudentId]?.education_base?.id;
-      // document.body.style.height = "100%";
-      // document.body.style.width = "100%";
-      // document.body.style.position = "relative";
-      // document.body.style.overflow = "hidden";
+      this.form.first_name = this.students[StudentId]?.first_name;
+      this.form.last_name = this.students[StudentId]?.last_name;
+      this.form.middle_name = this.students[StudentId]?.middle_name;
+      this.form.number_student_book = this.students[StudentId]?.number_student_book;
+      this.form.username = this.students[StudentId]?.username;
+      this.form.education_base = this.students[StudentId]?.education_base?.id;
+      this.form.student_status = this.students[StudentId]?.student_status?.id;
+      this.form.password_text = this.students[StudentId]?.password_text;
+
+      this.form.role = this.students[StudentId]?.role?.id;
     },
     openModal() {
-      this.form = "";
       this.modalActive = true;
+      this.modalTitle = "Добавить";
+      this.modalAction = this.addForm;
+      this.modalActionText = "Добавить";
+      this.form = {
+        role: 1,
+      };
     },
+    openModalConsultancy(isMain) {
+      if (typeof isMain !== "undefined") {
+        this.form.is_main = isMain;
+        this.modalConsultancy = true;
+        this.form.dt_send = new Date().toLocaleDateString("ru-RU");
+        this.form.teacher = "";
+        this.form.student = "";
+        this.form.message = "";
+        this.form.comment = "";
+      } else {
+        this.modalConsultancy = true;
+        this.form.is_main = false;
+        this.form.dt_send = new Date().toLocaleDateString("ru-RU");
+        this.form.teacher = "";
+        this.form.student = "";
+        this.form.comment = "";
+        this.form.message = "";
+      }
+    },
+
+    openModalEditConsultancy(consultationId, isMain) {
+      // Найдите консультацию с указанным consultationId в массиве this.consultancies
+      const consultation = this.consultancies.find((consultation) => consultation.id === consultationId);
+
+      // Найдите главную консультацию с указанным consultationId в массиве this.tickets
+      const isMainConsultation = this.tickets.find((mainConsultation) => mainConsultation.id === consultationId);
+
+      console.log(consultation);
+      console.log(isMainConsultation);
+
+      if (isMain) {
+        const dtSendDate = new Date();
+        this.form.id = isMainConsultation.id;
+        this.form.teacher = isMainConsultation.teacher.id;
+        this.form.student = isMainConsultation.student.id;
+        this.form.message = isMainConsultation.message;
+        this.form.dt_send = dtSendDate.toLocaleDateString("ru-RU");
+
+        this.form.is_main = true;
+      } else {
+        this.form.id = consultation.id;
+        this.form.teacher = consultation.teacher;
+        this.form.student = consultation.student;
+        this.form.comment = consultation.comment;
+        this.form.is_main = false;
+      }
+
+      this.modalEditConsultancy = true;
+    },
+    // openModalEditConsultancy(consultationId) {
+    //   const isMainConsultation = this.categoriesData.find((consultation) =>
+    //     categoriesData.is_main === true ? consultation.id === consultationId : (categoriesData.id = consultationId)
+    //   );
+    //   // Найдите консультацию с указанным consultationId в массиве this.consultations
+    //   const consultation = this.consultancies.find((consultation) => consultation.id === consultationId);
+    //   console.log(consultation);
+    //   // Теперь, consultation должен содержать данные консультации
+    //   if (consultation) {
+    //     // Заполните данные для редактирования
+    //     this.form.id = consultation.id;
+    //     this.form.teacher = consultation.teacher ? consultation.teacher : null;
+    //     this.form.student = consultation.student ? consultation.student : null;
+    //     this.form.comment = consultation.comment;
+    //     console.log(this.form.teacher);
+    //     // Откройте модальное окно редактирования
+    //     this.modalEditConsultancy = true;
+    //   }
+    // },
   },
   watch: {
     groupId: "getGroup",
@@ -568,4 +950,10 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.distriburion {
+  font-size: 20px;
+  margin: 30px 0 0 20px;
+  font-weight: 700;
+}
+</style>

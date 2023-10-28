@@ -4,16 +4,15 @@ import {
 } from 'vue-router'
 import Teachers from '../components/Teachers.vue'
 import Specialties from '../components/Specialties.vue'
-import Registration from '../components/Registration.vue'
 import Login from '../components/Login.vue'
 import Profile from '../components/Profile.vue'
-import Test from '../components/Test.vue'
 import Graduation from '../components/Graduation.vue'
 import NotFound from '../components/NotFound.vue'
 import Main from '../components/Main.vue'
 import GraduationItem from '../components/GraduationItem.vue'
 import MyTickets from '../components/MyTickets.vue'
 import Tickets from '../components/Tickets.vue'
+import Directory from '../components/Directory/Directory.vue'
 import {
   useUserStore
 } from '@/stores/user'
@@ -44,14 +43,6 @@ const router = createRouter({
       },
     },
     {
-      path: '/registration',
-      name: 'registration',
-      component: Registration,
-      meta: {
-        requiresAuth: true,
-      },
-    },
-    {
       path: '/login',
       name: 'login',
       component: Login
@@ -74,6 +65,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/directory',
+      name: 'directory',
+      component: Directory,
+      meta: {
+        requiresAuth: true,
+        requiresAdmin: true,
+      },
+    },
+    {
       path: '/graduation/:graduationId',
       name: 'graduationItem',
       component: GraduationItem,
@@ -82,14 +82,7 @@ const router = createRouter({
         requiresAdmin: true,
       },
     },
-    {
-      path: '/test',
-      name: 'test',
-      component: Test,
-      meta: {
-        requiresAuth: true,
-      },
-    },
+
     {
       path: '/:pathMatch(.*)*',
       name: 'notFound',

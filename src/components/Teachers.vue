@@ -7,11 +7,12 @@ import Add from './icons/Add.vue'
 </script>
 
 <template>
-  
+  <CustomAlert ref="alertComponent" />
+  <CustomConfirm ref="confirmComponent" />
 <div class="row">
     <div class="col-3"></div>
   <div class="col-8 content">
-    <CustomAlert ref="alertComponent" />
+  
   <div class="card">
     <div class="table-responsive">
       <div v-if="isLoading" >
@@ -76,13 +77,26 @@ import Add from './icons/Add.vue'
             <td v-if="user.academic_degree">{{user.academic_degree.name}}</td>
             <td v-else></td>
             <td>{{user.username}}</td>
-            <td>{{user.password_text}}</td>
+            <td> 
+              <span v-if="!user.showPassword" @click="togglePassword(user)" style="cursor: pointer;">
+              *********
+            </span>
+            <span v-else @click="togglePassword(user)">
+              {{ user.password_text }}
+            </span></td>
             <td>
                 <Edit @click="openModalEdit(index)" />
               </td>
               <td>
                 <Delete @click="deleteUser(user.id)" />
               </td>
+          </tr>
+        </tbody>
+        <tbody v-if="sortedTeachers.length === 0"> 
+          <tr>
+            <td colspan="11" class="text-center fw-bold">
+              Пока нет ни одного преподавателя
+            </td>
           </tr>
         </tbody>
       </table>
@@ -92,9 +106,7 @@ import Add from './icons/Add.vue'
     </div>
   </div>
 
- <div>
-  <CustomConfirm ref="confirmComponent" />
- </div>
+ 
 
   <div v-show="modalActive" >
     <div  @click="modalActive = false; this.errors=''" class="modal-wrapper" ></div>
@@ -274,12 +286,12 @@ import Add from './icons/Add.vue'
             </div>
             
           
-            <div class="form-outline mb-3">
+             <div class="form-outline mb-3">
               <label class="form-label fw-bold ms-4">Пароль</label>
-              <div class="input-group mb-3"><input v-model="form.password_text" class="form-control form-modal" 
-                placeholder="Введите или сгенерируйте пароль" />
-                <button class="btn btn-outline-secondary" @click="generatePassword">Сгенерировать пароль</button></div>
-              
+              <div class="input-group mb-3">
+                <input v-model="form.password_text" class="form-control form-modal" placeholder="Введите или сгенерируйте пароль" />
+                <button class="btn btn-outline-secondary" @click="generatePassword">Сгенерировать пароль</button>
+              </div>
             </div>
           </div>
         </div>
@@ -348,12 +360,14 @@ export default {
           last_name: '',
           middle_name: '',
           username: '',
+          password: '',
           password_text: '',
           position: '',
           academic_title: '',
           academic_degree: '',
           role: 2,
           sortKey: '',
+          
         },
         positions: [],
         academic_titles: [],
@@ -390,7 +404,16 @@ return this.users.sort((a, b) => {
   if (aValue > bValue) return 1 * direction;
   return 0;
 });
-}
+},
+displayedPassword: {
+      get() {
+        return this.form.password_text;
+      },
+      set(value) {
+        this.form.password_text = value;
+        
+      },
+    },
   },
 
         methods: {
@@ -415,7 +438,7 @@ return this.users.sort((a, b) => {
        
           getUsers() {
            
-            axios.get('http://localhost:8000/api/user_unsafe?role=2').then(res => {
+            axios.get(`${API_URL}user_unsafe?role=2`).then(res => {
              
                 this.users = res.data
                 this.isLoading = false
@@ -462,89 +485,94 @@ return this.users.sort((a, b) => {
 
 
 
-          async submitForm() {
-        this.errors = []
+  async submitForm() {
+  this.errors = [];
 
-        if (this.form.first_name === undefined || this.form.first_name.trim() === '') {
-            this.errors.push(ERRORS.first_name)
-        }
+  if (this.form.first_name === undefined || this.form.first_name.trim() === '') {
+    this.errors.push(ERRORS.first_name);
+  }
 
-        if (this.form.last_name === undefined || this.form.last_name.trim() === '' ) {
-            this.errors.push(ERRORS.last_name)
-        }
+  if (this.form.last_name === undefined || this.form.last_name.trim() === '') {
+    this.errors.push(ERRORS.last_name);
+  }
 
-        if (this.form.middle_name === undefined || this.form.middle_name.trim() === '') {
-            this.errors.push(ERRORS.middle_name)
-        }
+  if (this.form.middle_name === undefined || this.form.middle_name.trim() === '') {
+    this.errors.push(ERRORS.middle_name);
+  }
 
-        if (this.form.username === undefined || this.form.username.trim() === '') {
-            this.errors.push(ERRORS.login)
-        }
+  if (this.form.username === undefined || this.form.username.trim() === '') {
+    this.errors.push(ERRORS.login);
+  }
 
-        if (this.form.password_text === undefined || this.form.password_text.trim() === '') {
-            this.errors.push(ERRORS.password)
-        }
+  if (this.form.password_text === undefined || this.form.password_text.trim() === '') {
+    this.errors.push(ERRORS.password);
+  } else {
+    this.form.password = this.form.password_text;
+  }
 
-
-        if (this.errors.length === 0) {
-           
-            await axios
-                .post('http://localhost:8000/api/user_unsafe/', this.form)
-                .then(response => {
-                    this.getUsers()
-                    this.showAlert("Преподаватель добавлен")
-                    this.modalActive = false
-                }).catch(error => {
-                  Object.keys(error.response.data).forEach(field => {
-        error.response.data[field].forEach(errorMessage => {
+  if (this.errors.length === 0) {
+    await axios
+      .post(`${API_URL}user_unsafe/`, this.form)
+      .then(response => {
+        this.getUsers();
+        this.showAlert("Преподаватель добавлен");
+        this.modalActive = false;
+      })
+      .catch(error => {
+        Object.keys(error.response.data).forEach(field => {
+          error.response.data[field].forEach(errorMessage => {
             this.errors.push(`${field}: ${errorMessage}`);
+          });
         });
-        });
-                })
-        }
-    },
-          async updateForm() {
-        this.errors = []
+      });
+  }
+},
 
-        if (this.form.first_name === undefined || this.form.first_name.trim() === '') {
-            this.errors.push(ERRORS.first_name)
-        }
+    async updateForm() {
+  this.errors = [];
 
-        if (this.form.last_name === undefined || this.form.last_name.trim() === '' ) {
-            this.errors.push(ERRORS.last_name)
-        }
+  if (this.form.first_name === undefined || this.form.first_name.trim() === '') {
+    this.errors.push(ERRORS.first_name);
+  }
 
-        if (this.form.middle_name === undefined || this.form.middle_name.trim() === '') {
-            this.errors.push(ERRORS.middle_name)
-        }
+  if (this.form.last_name === undefined || this.form.last_name.trim() === '') {
+    this.errors.push(ERRORS.last_name);
+  }
 
-        if (this.form.username === undefined || this.form.username.trim() === '') {
-            this.errors.push(ERRORS.login)
-        }
+  if (this.form.middle_name === undefined || this.form.middle_name.trim() === '') {
+    this.errors.push(ERRORS.middle_name);
+  }
 
-        if (this.form.password_text === undefined || this.form.password_text.trim() === '') {
-            this.errors.push(ERRORS.password)
-        }
+  if (this.form.username === undefined || this.form.username.trim() === '') {
+    this.errors.push(ERRORS.login);
+  }
 
-        if (this.errors.length === 0) {
-            await axios
-                .patch(`http://localhost:8000/api/user_unsafe/${this.form.id}/`, this.form)
-                .then(response => {
-                    this.getUsers()
-                    this.showAlert("Преподаватель обновлен")
-                    this.modalActiveEdit = false
-                }).catch(error => {
-                  Object.keys(error.response.data).forEach(field => {
-        error.response.data[field].forEach(errorMessage => {
+  if (this.form.password_text === undefined || this.form.password_text.trim() === '') {
+    this.errors.push(ERRORS.password);
+  } else {
+    this.form.password = this.form.password_text;
+  }
+
+  if (this.errors.length === 0) {
+    await axios
+      .patch(`${API_URL}user_unsafe/${this.form.id}/`, this.form)
+      .then(response => {
+        this.getUsers();
+        this.showAlert("Преподаватель обновлен");
+        this.modalActiveEdit = false;
+      })
+      .catch(error => {
+        Object.keys(error.response.data).forEach(field => {
+          error.response.data[field].forEach(errorMessage => {
             this.errors.push(`${field}: ${errorMessage}`);
+          });
         });
-        });
-                })
-        }
-    },
+      });
+  }
+},
 
           getPosition() {
-            axios.get('http://localhost:8000/api/position/').then(res => {
+            axios.get(`${API_URL}position/`).then(res => {
                 this.positions = res.data
 
             })
@@ -562,18 +590,18 @@ return this.users.sort((a, b) => {
         },
 
       getAcademicTitle() {
-        axios.get('http://localhost:8000/api/academic_title/').then(response => {
+        axios.get(`${API_URL}academic_title/`).then(response => {
             this.academic_titles = response.data
         })
       },
 
       getAcademicDegree() {
-          axios.get('http://localhost:8000/api/academic_degree/').then(response => {
+          axios.get(`${API_URL}academic_degree/`).then(response => {
               this.academic_degrees = response.data
           })
 
       },
-    generatePassword() {
+      generatePassword() {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&()';
       let generatedPassword = '';
 
@@ -582,14 +610,19 @@ return this.users.sort((a, b) => {
         generatedPassword += chars[randomIndex];
       }
 
-      this.form.password_text = generatedPassword;
+      this.form.password = generatedPassword; 
+      this.form.password_text = generatedPassword; 
+    },
+
+    togglePassword(user) {
+      user.showPassword = !user.showPassword;
     },
 
     deleteUser(userId) {
     this.$refs.confirmComponent.show("Вы уверены что хотите удалить учетную запись?")
       .then((confirmed) => {
         if (confirmed) {
-          axios.delete(`http://localhost:8000/api/user/${userId}/`)
+          axios.delete(`${API_URL}user/${userId}/`)
             .then(res => {
               this.showAlert("Учетная запись удалена");
               this.getUsers()
