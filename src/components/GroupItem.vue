@@ -120,18 +120,18 @@ import Add from "./icons/Add.vue";
         <div class="form-wrapper">
           <div class="form-item">
             <div class="form-outline mb-3">
-              <label class="form-label fw-bold ms-4">Имя</label>
+              <label class="form-label fw-bold ms-4">Фамилия</label>
               <input
-                v-model="form.first_name"
+                v-model="form.last_name"
                 type="text"
                 class="form-control form-modal"
                 placeholder="Введите тип выпуска "
               />
             </div>
             <div class="form-outline mb-3">
-              <label class="form-label fw-bold ms-4">Фамилия</label>
+              <label class="form-label fw-bold ms-4">Имя</label>
               <input
-                v-model="form.last_name"
+                v-model="form.first_name"
                 type="text"
                 class="form-control form-modal"
                 placeholder="Введите тип выпуска "
@@ -251,7 +251,7 @@ import Add from "./icons/Add.vue";
                 </td>
                 <td>{{ consultation.hours }}</td>
                 <td>{{ relation.comment }}</td>
-                <td>{{ relation.student.student_status ? relation.student.student_status : "" }}</td>
+                <td>{{ relation.student.student_status ? relation.student.student_status.name : "" }}</td>
                 <td><Edit @click="openModalEditConsultancy(relation.id, consultation.is_main)" /></td>
               </tr>
             </tbody>
@@ -283,7 +283,7 @@ import Add from "./icons/Add.vue";
               <td></td>
               <td></td>
               <td>
-                {{ relation.student_status ? relation.student_status : "" }}
+                {{ relation.student_status ? relation.student_status.name : "" }}
               </td>
             </tr>
           </tbody>
@@ -338,13 +338,13 @@ import Add from "./icons/Add.vue";
       </div>
 
       <div class="form-outline mb-3">
-        <label class="form-label fw-bold ms-4" :for="isMain ? 'message' : 'comment'">Заявка</label>
+        <label class="form-label fw-bold ms-4" :for="isMain ? 'comment' : 'comment'">Заявка</label>
         <input
           v-model="selectedField"
           type="text"
           class="form-control form-modal"
           placeholder="Введите текст заявки"
-          :id="isMain ? 'message' : 'comment'"
+          :id="isMain ? 'comment' : 'comment'"
         />
       </div>
 
@@ -406,13 +406,13 @@ import Add from "./icons/Add.vue";
       </div>
 
       <div class="form-outline mb-3">
-        <label class="form-label fw-bold ms-4" :for="isMain ? 'message' : 'comment'">Заявка</label>
+        <label class="form-label fw-bold ms-4" :for="isMain ? 'comment' : 'comment'">Заявка</label>
         <input
           v-model="selectedField"
           type="text"
           class="form-control form-modal"
           placeholder="Введите текст заявки"
-          :id="isMain ? 'message' : 'comment'"
+          :id="isMain ? 'comment' : 'comment'"
         />
       </div>
 
@@ -498,11 +498,11 @@ export default {
     },
     selectedField: {
       get() {
-        return this.isMain ? this.form.message : this.form.comment;
+        return this.isMain ? this.form.comment : this.form.comment;
       },
       set(value) {
         if (this.isMain) {
-          this.form.message = value;
+          this.form.comment = value;
         } else {
           this.form.comment = value;
         }
@@ -630,33 +630,6 @@ export default {
           });
       }
     },
-    // async addConsultancy() {
-    //   this.errors = [];
-
-    //   if (this.errors.length === 0) {
-    //     await axios
-    //       .post(`${API_URL}consultancy/`, this.form)
-    //       .then((response) => {
-    //         this.getConsultations();
-    //         this.form = "";
-    //         this.modalConsultancy = false;
-    //         this.showAlert("Информация обновлена");
-    //       })
-    //       .catch((error) => {
-    //         Object.keys(error.response.data).forEach((field) => {
-    //           if (Array.isArray(error.response.data[field])) {
-    //             error.response.data[field].forEach((errorMessage) => {
-    //               this.errors.push(`${field}: ${errorMessage}`);
-    //             });
-    //           } else if (typeof error.response.data[field] === "string") {
-    //             this.errors.push(`${field}: ${error.response.data[field]}`);
-    //           } else {
-    //             this.errors.push(`${field}: An unknown error occurred`);
-    //           }
-    //         });
-    //       });
-    //   }
-    // },
 
     async addConsultancy() {
       this.errors = [];
@@ -730,36 +703,10 @@ export default {
           });
       }
     },
-    // async editConsultancy() {
-    //   this.errors = [];
 
-    //   if (this.errors.length === 0) {
-    //     await axios
-    //       .patch(`${API_URL}consultancy/${this.form.id}/`, this.form)
-    //       .then((response) => {
-    //         this.getConsultations();
-    //         this.modalEditConsultancy = false;
-    //         this.showAlert("Информация обновлена");
-    //       })
-    //       .catch((error) => {
-    //         Object.keys(error.response.data).forEach((field) => {
-    //           if (Array.isArray(error.response.data[field])) {
-    //             error.response.data[field].forEach((errorMessage) => {
-    //               this.errors.push(`${field}: ${errorMessage}`);
-    //             });
-    //           } else if (typeof error.response.data[field] === "string") {
-    //             this.errors.push(`${field}: ${error.response.data[field]}`);
-    //           } else {
-    //             this.errors.push(`${field}: An unknown error occurred`);
-    //           }
-    //         });
-    //       });
-    //   }
-    // },
     togglePassword(student) {
       student.showPassword = !student.showPassword;
     },
-    // console.error("Ошибка при обновлении:", error.response.data.error);
 
     showAlert(message) {
       this.$refs.alertComponent.show(message);
@@ -779,6 +726,7 @@ export default {
     },
     getStudents() {
       axios.get(`${API_URL}user_unsafe?student_group=${this.groupId}`).then((res) => {
+        console.log(this.groupId);
         this.students = res.data;
       });
     },
@@ -882,7 +830,7 @@ export default {
         this.form.dt_send = new Date().toLocaleDateString("ru-RU");
         this.form.teacher = "";
         this.form.student = "";
-        this.form.message = "";
+
         this.form.comment = "";
       } else {
         this.modalConsultancy = true;
@@ -891,7 +839,6 @@ export default {
         this.form.teacher = "";
         this.form.student = "";
         this.form.comment = "";
-        this.form.message = "";
       }
     },
 
@@ -900,7 +847,7 @@ export default {
       const consultation = this.consultancies.find((consultation) => consultation.id === consultationId);
 
       // Найдите главную консультацию с указанным consultationId в массиве this.tickets
-      const isMainConsultation = this.tickets.find((mainConsultation) => mainConsultation.id === consultationId);
+      const isMainConsultation = this.tickets.find((consultation) => consultation.id === consultationId);
 
       console.log(consultation);
       console.log(isMainConsultation);
@@ -910,7 +857,7 @@ export default {
         this.form.id = isMainConsultation.id;
         this.form.teacher = isMainConsultation.teacher.id;
         this.form.student = isMainConsultation.student.id;
-        this.form.message = isMainConsultation.message;
+        this.form.comment = isMainConsultation.comment;
         this.form.dt_send = dtSendDate.toLocaleDateString("ru-RU");
 
         this.form.is_main = true;

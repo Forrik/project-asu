@@ -27,7 +27,7 @@
                             <td>{{ticket.id}}</td>
                             <td>{{ticket.dt_send}}</td>
                             <td>{{ticket.teacher.last_name}} {{ticket.teacher.first_name}} {{ticket.teacher.middle_name}}</td>
-                            <td>{{ticket.message}}</td>
+                            <td>{{ticket.comment}}</td>
                             <td>{{ticket.ticket_status.name}}</td>
                             <td>{{ticket.dt_response}}</td>
                           </tr>
@@ -71,7 +71,7 @@
                        
                         <div class="form-outline mb-3">
                           <label class="form-label fw-bold ms-4" >Мотивационное сообщение</label>
-                          <textarea v-model="form.message" class="form-control form-message" id="exampleFormControlTextarea1" rows="3"></textarea>
+                          <textarea v-model="form.comment" class="form-control form-message" id="exampleFormControlTextarea1" rows="3"></textarea>
                         </div>
                       
         
@@ -127,7 +127,7 @@ export default {
           isLoading: true,
           modalActive: false,
           form: {
-             message: '',
+            comment: '',
              teacher: '',
           },
           errors: [],

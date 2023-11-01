@@ -48,14 +48,14 @@
                     <td>{{ newTicket.dt_send }}</td>
                     <td>
                       {{ newTicket.student.student_group.speciality.abbreviation }}-{{
-                        newTicket.student.student_group.number
-                      }}
+                        newTicket.student.student_group.course
+                      }}{{ newTicket.student.student_group.number }}
                     </td>
                     <td>
                       {{ newTicket.student.last_name }} {{ newTicket.student.middle_name }}
                       {{ newTicket.student.first_name }}
                     </td>
-                    <td>{{ newTicket.message }}</td>
+                    <td>{{ newTicket.comment }}</td>
                     <td>
                       <button @click="acceptTicket(newTicket.id)" class="btn btn-primary btn-sm">Принять</button>
                     </td>
@@ -84,12 +84,16 @@
                   <tr v-for="(acceptedTicket, index) in acceptedTickets" :key="index">
                     <td>{{ acceptedTicket.id }}</td>
                     <td>{{ acceptedTicket.dt_send }}</td>
-                    <td></td>
+                    <td>   <td>
+                      {{ acceptedTicket.student.student_group.speciality.abbreviation }}-{{
+                        acceptedTicket.student.student_group.course
+                      }}{{ acceptedTicket.student.student_group.number }}
+                    </td></td>
                     <td>
                       {{ acceptedTicket.student.last_name }} {{ acceptedTicket.student.middle_name }}
                       {{ acceptedTicket.student.first_name }}
                     </td>
-                    <td>{{ acceptedTicket.message }}</td>
+                    <td>{{ acceptedTicket.comment }}</td>
                     <td>{{ acceptedTicket.dt_response }}</td>
                   </tr>
                   <tr v-if="acceptedTickets.length === 0">
@@ -112,12 +116,14 @@
                   <tr v-for="(rejectedTicket, index) in rejectedTickets" :key="index">
                     <td>{{ rejectedTicket.id }}</td>
                     <td>{{ rejectedTicket.dt_send }}</td>
-                    <td></td>
+                    <td>  {{ rejectedTicket.student.student_group.speciality.abbreviation }}-{{
+                      rejectedTicket.student.student_group.course
+                    }}{{ rejectedTicket.student.student_group.number }}</td>
                     <td>
                       {{ rejectedTicket.student.last_name }} {{ rejectedTicket.student.middle_name }}
                       {{ rejectedTicket.student.first_name }}
                     </td>
-                    <td>{{ rejectedTicket.message }}</td>
+                    <td>{{ rejectedTicket.comment }}</td>
                     <td>{{ rejectedTicket.dt_response }}</td>
                   </tr>
                   <tr v-if="rejectedTickets.length === 0">
